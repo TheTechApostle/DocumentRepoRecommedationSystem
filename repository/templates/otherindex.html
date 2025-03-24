@@ -1,0 +1,733 @@
+<!--
+=========================================================
+* Material Dashboard 2 - v3.0.0
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/material-dashboard
+* Copyright 2021 Creative Tim (https://www.creative-tim.com)
+* Licensed under MIT (https://www.creative-tim.com/license)
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
+{% load static %}
+{% include 'header.html' %}
+<style>
+  
+  .calendar {
+      margin-bottom: 10px;
+  }
+  .calendar-header {
+      text-align: center;
+      font-weight: bold;
+      padding: 5px 0;
+      background-color: #610061;
+      color: white;
+      border-radius: 5px;
+      margin-bottom: 10px;
+  }
+  .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+  }
+  .calendar-day {
+      border: 1px solid #ddd;
+      height: 40px;
+      cursor: pointer;
+      position: relative;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+      padding: 1px;
+  }
+  .calendar-day:hover {
+      background-color: #00061;
+      color: white;
+  }
+  .calendar-day-number {
+      position: absolute;
+      top: 3px;
+      left: 2px;
+      font-weight: bold;
+  }
+  .calendar-day.current-day {
+      background-color: #610061;
+      color: white;
+  }
+  .event-title {
+      font-size: 12px;
+      background-color: #000061;
+      color: white;
+      padding: 2px 5px;
+      margin-top: 5px;
+      border-radius: 3px;
+  }
+  .controls {
+      text-align: center;
+      margin-bottom: 20px;
+  }
+  .controls button {
+      margin: 0 10px;
+  }
+  .text-large{
+      color:#620062;
+      font-size:34px;
+      font-family:tahoma;
+      font-weight:bolder;
+      padding:-10px;
+  }
+  .text-left{
+      color:#620062
+  }.mybtn{color:skyblue;font-size:10px}
+  #add{
+      border:1px solid #620061;color:#620062;
+  }
+  .bg-check{background:#ccccff}
+  .custom-select-option{
+      margin-left:4px;
+      width:inherit;
+      padding:1px;
+      padding-left:2px;
+      padding-right:2px;
+      color:lightblue;
+  }.selected-attendees{color:lightblue;}
+  .well{
+      background:#ccccff;
+      padding:3px;
+      border-radius:20px 20px;
+  }
+  /* Custom position for the modal 
+  .modal-dialog {
+      position: fixed;
+      top: 10%;
+      right: 20;
+      width: 600px;
+      margin: 0;
+   
+      overflow-y: none;
+  }*/
+  .modal-content {
+      height: inherit;
+      border-radius: 10 10px;
+      
+  }.mybtn{color:skyblue;font-size:10px; font-style:capitalize}
+  .text-sm{ font-size:8px; color:#620062}label{color:black;}
+</style>
+<body class="g-sidenav-show  bg-gray-200">
+  {% include "asidehead.html" %}
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
+    <!-- Navbar -->
+    {% include 'nav.html' %}
+    <div class="container-fluid py-4">
+      <div class="row">
+        <h3 class="text-left font-tahoma" style="float:left;">Overview</h3><br class="d-none d-sm-block"><br><br>
+        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+          <div class="card">
+            <div class="card-header p-3 pt-2">
+              <!-- <div class="icon icon-lg icon-shape bg-gradient-dark shadow-dark text-center border-radius-xl mt-n4 position-absolute">
+                <i class="material-icons opacity-10">weekend</i>
+              </div> -->
+              <a href="{% url 'uploadproject' %}">
+              <div class="text-start pt-1">
+                <h5 class="text-sm mb-0 text-capitalize"><font style="font-size:20px">Projects</font></h5>
+                <h3 class="mb-0 font-tahoma textheader text-center header"><font size="30px">{{fold}}</font></h3>
+              </div>
+              <br>
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer bg-all p-3" style="background-color:#620062">
+              <p class="mb-0 text-white">
+                <span class="text-success text-sm font-weight-bolder">
+                <img src="{% static 'assets/img/trending-up.png' %}" class="w-15 h-15"/>
+              </span>view all</p>
+            </div>
+          </a>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+          <div class="card">
+            <div class="card-header p-3 pt-2">
+              <!-- <div class="icon icon-lg icon-shape bg-gradient-dark shadow-dark text-center border-radius-xl mt-n4 position-absolute">
+                <i class="material-icons opacity-10">weekend</i>
+              </div> -->
+              <a href="{% url 'document' %}">
+                <div class="text-start pt-1">
+                  <h5 class="mb-0 text-capitalize"><font style="font-size:20px">Documents</font></h5>
+                  <h3 class="mb-0 font-tahoma textheader text-center header"><font size="30px">{{docx}}</font></h3>
+                </div>
+              </a>
+              <br>
+            </div>
+            <hr class="dark horizontal my-0">
+            <a href="{% url 'document' %}">
+              <div class="card-footer bg-all p-3" style="background-color:#620062">
+                <p class="mb-0 text-white"><span class="text-success text-sm font-weight-bolder">
+                  <img src="{% static 'assets/img/trending-up.png' %}" class="w-15 h-15"/>
+                </span>view all</p>
+              </div>
+            </a>
+          </div>
+        </div>
+        <div class="col-xl-6 col-sm-6 mb-xl-0 mb-4">
+          <div class="card">
+            <div class="card-header p-3 pt-2">
+              <!-- <div class="icon icon-lg icon-shape bg-gradient-success shadow-success text-center border-radius-xl mt-n4 position-absolute">
+                <i class="material-icons opacity-10">person</i>
+              </div> -->
+              <div class="text-end pt-1">
+                <p class="text-sm mb-0 text-capitalize"></p>
+                <h4 class="mb-0"></h4>
+              </div>
+              <!-- <div style="height:300px"></div> -->
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer p-3">
+              <p class="mb-0"><span class="text-danger text-sm font-weight-bolder"></span></p>
+            </div>
+            <hr>
+
+          </div>
+        </div>
+        
+      
+      
+        <div class="col-lg-6 col-md-6 mt-4 mb-4">
+          <div class="card ">
+            
+            <div class="card-body px-5 ">
+              <h5 class="mb-0">Welcome to the lineup</h5>
+              <p class="text-again-card text-again-card justify-content-end">Plot projects on a timeline for a visual snapshot of what’s in play, who’s working on what, and when projects starts and end.
+              <br/>
+                <a class="text-right">Add start/end dates to a project </a>
+                <span class="">to view it on the Lineup.</span>
+              </p>
+              </div>
+            </div>
+          </div>
+        
+        
+        
+      </div>
+      <div class="row mb-4">
+        {% if meetings_data %}
+          {% for data in meetings_data %}
+          <div class="col-lg-6 col-md-6 mb-md-0 mb-4">
+            <div class="card">
+              <div class="card-header pb-0">
+                <div class="row">
+                  <div class="col-lg-6 col-7">
+                    <span class="clear h5">{{ data.meeting.title }}</span><br>
+                    <span class="text-gray text-sm m-0">{{ data.meeting.description }}</span>
+                    
+                  </div>
+                  <div class="card bg-lightblue p-2 mt-4">
+                      <div class="panel">
+                        <img src="{% static 'assets/img/clock.png' %}"  style="height:20px; width:20px;"> 
+                        <span class="text-right"><b>{{ data.meeting.event_date }}, {{data.meeting.event_time}} </b></span>
+                        <img src="{% static 'assets/img/menu-vertical.png' %}" class="float-end" />
+                      </div>
+                  </div>
+                  
+                </div>
+              </div>
+              <div class="card-body px-0 pb-2">
+                <div class="table-responsive">
+                  <table class="table align-items-center mb-0">
+                    <thead>
+                      <h4 class="text-right mx-3">Attendee</h4>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        
+                        <td>
+                          <div class="avatar-group mt-2">
+                            
+                                <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ryan Tompson">
+                                  <img src="{% static 'assets/img/team-1.jpg'  %}" alt="team1">
+                                  
+                                </a>
+                                <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Romina Hadid">
+                                  <img src="{% static 'assets/img/team-2.jpg'  %}" alt="team2">
+                                </a>
+                                <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Alexander Smith">
+                                  <img src="{% static 'assets/img/team-3.jpg'  %}" alt="team3">
+                                </a>
+                              
+                                <a href="javascript:;" class="avatar bg-all avatar-xs  rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Jessica Doe">
+                                  <span class="mt-2 pb-1">{{ data.attendee_count }}</span>
+                                </a>
+                                <span class="text-xs font-weight-bold h6"></span>
+                                
+                          </div>
+                        </td>
+                        <td>&nbsp;<span class="d-none"></span></td>
+                        <td class="align-right float-end d-flex">
+                          <div class="progress-wrapper w-75">
+                            <div class="progress-info">
+                              <div class="progress-percentage">
+                                <span class="text-xs font-weight-bold h6">Send Invitation Link</span>
+                                <a href="javascript:;" class="avatar bg-all avatar-xs  rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Jessica Doe">
+                              <span class="mt-2 pb-1 "><img src="{% static 'assets/img/send-1.png' %}"/></span>
+                            </a>
+                              </div>
+                            </div>
+                            
+                          </div>
+                        </td>
+                      </tr>
+                      
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+        {% endif %}
+        <div class="col-lg-6 col-md-6">
+          <div class="card h-100">
+            <div class="card-header pb-0">
+              <h6>Calendar</h6>
+              {% comment %} <p class="text-sm">
+                <i class="fa fa-arrow-up text-success" aria-hidden="true"></i>
+                <span class="font-weight-bold">24%</span> this month
+              </p>
+            </div> {% endcomment %}
+           
+        
+              <div class="calendar-container">
+                  <div class="controls">
+                      <center><button id="prev-month" class="btn btn"><i class="fa fa-arrow-circle-up"></i></button></center>
+                      <span id="current-month-year" class="text-right"></span>
+                      
+                  </div>
+                  <div id="calendar1" class="calendar">
+                      <div id="month1" class="calendar-header"></div>
+                      <div class="calendar-grid"></div>
+                  </div>
+                  {% comment %} <div id="calendar2" class="calendar">
+                      <div id="month2" class="calendar-header"></div>
+                      <div class="calendar-grid"></div>
+                  </div> {% endcomment %}
+                  <center><button id="next-month" class="btn btn"><i class="fa fa-arrow-circle-down "></i></button></center>
+              </div>
+              
+         
+      
+    </div>
+  </main>
+  <div class="fixed-plugin">
+    <a class="fixed-plugin-button text-dark position-fixed px-3 py-2">
+      <i class="material-icons py-2">settings</i>
+    </a>
+    <div class="card shadow-lg">
+      <div class="card-header pb-0 pt-3">
+        <div class="float-start">
+          <h5 class="mt-3 mb-0">TechPhluent UI</h5>
+          <p>See our dashboard options.</p>
+        </div>
+        <div class="float-end mt-4">
+          <button class="btn btn-link text-dark p-0 fixed-plugin-close-button">
+            <i class="material-icons">clear</i>
+          </button>
+        </div>
+        <!-- End Toggle Button -->
+      </div>
+      <hr class="horizontal dark my-1">
+      <div class="card-body pt-sm-3 pt-0">
+        <!-- Sidebar Backgrounds -->
+        <div>
+          <h6 class="mb-0">Sidebar Colors</h6>
+        </div>
+        <a href="javascript:void(0)" class="switch-trigger background-color">
+          <div class="badge-colors my-2 text-start">
+            <span class="badge filter bg-gradient-primary active" data-color="primary" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-dark" data-color="dark" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-info" data-color="info" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-success" data-color="success" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-warning" data-color="warning" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-danger" data-color="danger" onclick="sidebarColor(this)"></span>
+          </div>
+        </a>
+        <!-- Sidenav Type -->
+        <div class="mt-3">
+          <h6 class="mb-0">Sidenav Type</h6>
+          <p class="text-sm">Choose between 2 different sidenav types.</p>
+        </div>
+        <div class="d-flex">
+          <button class="btn bg-gradient-dark px-3 mb-2 active" data-class="bg-gradient-dark" onclick="sidebarType(this)">Dark</button>
+          <button class="btn bg-gradient-dark px-3 mb-2 ms-2" data-class="bg-transparent" onclick="sidebarType(this)">Transparent</button>
+          <button class="btn bg-gradient-dark px-3 mb-2 ms-2" data-class="bg-white" onclick="sidebarType(this)">White</button>
+        </div>
+        <p class="text-sm d-xl-none d-block mt-2">You can change the sidenav type just on desktop view.</p>
+        <!-- Navbar Fixed -->
+        <div class="mt-3 d-flex">
+          <h6 class="mb-0">Navbar Fixed</h6>
+          <div class="form-check form-switch ps-0 ms-auto my-auto">
+            <input class="form-check-input mt-1 ms-auto" type="checkbox" id="navbarFixed" onclick="navbarFixed(this)">
+          </div>
+        </div>
+        <hr class="horizontal dark my-3">
+        <div class="mt-2 d-flex">
+          <h6 class="mb-0">Light / Dark</h6>
+          <div class="form-check form-switch ps-0 ms-auto my-auto">
+            <input class="form-check-input mt-1 ms-auto" type="checkbox" id="dark-version" onclick="darkMode(this)">
+          </div>
+        </div>
+        <hr class="horizontal dark my-sm-4">
+        <a class="btn btn-outline-dark w-100" href="">View documentation</a>
+        <div class="w-100 text-center">
+          <a class="github-button" href="#" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star creativetimofficial/material-dashboard on GitHub">Star</a>
+          <h6 class="mt-3">Thank you for sharing!</h6>
+          <a href="#">
+            <i class="fab fa-twitter me-1" aria-hidden="true"></i> Tweet
+          </a>
+          <a href="#" class="btn btn-dark mb-0 me-2" target="_blank">
+            <i class="fab fa-facebook-square me-1" aria-hidden="true"></i> Share
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section style="float:right">
+      <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="eventModalLabel">Schedule Meeting</h5>
+                    <button type="button" class="close btn btn-info" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true h5">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                  <form id="eventForm" method="POST" action="{% url 'create_event' %}">
+                    {% csrf_token %}
+                        <div class="mb-3">
+                          <label for="eventTitle" class="form-label">Title</label>
+                          <input type="text" class="form-control" id="eventTitle" name="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="start_time px-2">Start Time</label>
+                            <input type="datetime-local" class="form-control px-3" id="eventDate" name="start_time">
+                            
+                        </div>
+                        <div class="mb-3">
+                          <label for="end_time" class="form-label">End Time</label>
+                          <input type="datetime-local" class="form-control" id="eventDate" name="end_time" required>
+                      </div>
+                        <br>
+                        <div class="mb-3">
+                          <label for="description" class="form-label">Description</label>
+                          <textarea class="form-control" id="description" name="description"></textarea>
+                      </div>
+                        <br>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          <button type="submit"  class="btn btn-primary">Save changes</button>
+                      </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+  </section>
+  {% include "footlink.html" %}
+
+  <style>.form-control{border:1px solid lightgray}</style>
+  <script>
+    $(document).ready(function () {
+        let currentDate = new Date();
+
+        function generateCalendar(monthOffset, calendarId, headerId) {
+            const date = new Date(currentDate.getFullYear(), currentDate.getMonth() + monthOffset, 1);
+            const month = date.getMonth();
+            const year = date.getFullYear();
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            const calendarGrid = $(`#${calendarId} .calendar-grid`);
+            calendarGrid.empty();
+
+            $(`#${headerId}`).text(date.toLocaleString('default', { month: 'long' }) + ' ' + year);
+
+            for (let i = 0; i < firstDay; i++) {
+                calendarGrid.append('<div></div>');
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const isCurrentDay = (
+                    currentDate.getDate() === day &&
+                    currentDate.getMonth() === month &&
+                    currentDate.getFullYear() === year
+                );
+
+                calendarGrid.append(`
+                    <div class="calendar-day ${isCurrentDay ? 'current-day' : ''}" data-day="${day}" data-month="${month + 1}" data-year="${year}">
+                        <span class="calendar-day-number">${day}</span>
+                    </div>
+                `);
+            }
+        }
+
+        function updateCalendars() {
+            generateCalendar(0, 'calendar1', 'month1');
+            generateCalendar(1, 'calendar2', 'month2');
+            $('#current-month-year').text(`${currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}`);
+        }
+
+        updateCalendars();
+
+        $('#prev-month').click(function () {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            updateCalendars();
+        });
+
+        $('#next-month').click(function () {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            updateCalendars();
+        });
+
+        $(document).on('click', '.calendar-day', function () {
+            const day = $(this).data('day');
+            const month = $(this).data('month');
+            const year = $(this).data('year');
+            $('#eventDay').val(`${year}-${month}-${day}`);
+            $('#addEventModal').modal('show');
+        });
+
+        $('#eventForm').submit(function (e) {
+            e.preventDefault();
+            const eventTitle = $('#eventTitle').val();
+            const eventDay = $('#eventDay').val();
+            const [year, month, day] = eventDay.split('-');
+            $(`.calendar-day[data-day='${day}'][data-month='${month}'][data-year='${year}']`).append(`
+                <div class="event-title">${eventTitle}</div>
+            `);
+            $('#addEventModal').modal('hide');
+            $(this)[0].reset();
+        });
+    });
+</script>
+  <script>
+    function toggleUploadType() {
+      const uploadType = document.getElementById('uploadType').value;
+      const fileInput = document.getElementById('fileInput');
+      const folderInput = document.getElementById('folderInput');
+
+      if (uploadType === 'file') {
+        fileInput.classList.remove('d-none');
+        folderInput.classList.add('d-none');
+      } else if (uploadType === 'folder') {
+        fileInput.classList.add('d-none');
+        folderInput.classList.remove('d-none');
+      }
+    }
+  </script>
+  
+  
+  <script>
+    var win = navigator.platform.indexOf('Win') > -1;
+    if (win && document.querySelector('#sidenav-scrollbar')) {
+      var options = {
+        damping: '0.5'
+      }
+      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+    }
+  </script>
+  <script>
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        let today = new Date();
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
+        let events = {};  // Store events in an object
+
+        function showCalendar(month, year) {
+            const firstDay = new Date(year, month).getDay();
+            const daysInMonth = 32 - new Date(year, month, 32).getDate();
+            const tbl = document.getElementById("calendar-body");
+            tbl.innerHTML = "";
+            document.getElementById("month-year").innerHTML = monthNames[month] + " " + year;
+
+            let date = 1;
+            for (let i = 0; i < 6; i++) {
+                let row = document.createElement("tr");
+
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 && j < firstDay) {
+                        let cell = document.createElement("td");
+                        let cellText = document.createTextNode("");
+                        cell.appendChild(cellText);
+                        row.appendChild(cell);
+                    } else if (date > daysInMonth) {
+                        break;
+                    } else {
+                        let cell = document.createElement("td");
+                        let cellText = document.createTextNode(date);
+                        let cellDate = `${year}-${month + 1}-${date}`;
+
+                        if (date === today.getDate() && year === today.getFullYear() && month === today.getMonth()) {
+                            cell.classList.add("current-day");
+                        }
+                        if (events[cellDate]) {
+                            cell.classList.add("has-event");
+                        }
+
+                        cell.appendChild(cellText);
+                        cell.addEventListener("click", () => openModal(cellDate));
+                        row.appendChild(cell);
+                        date++;
+                    }
+                }
+
+                tbl.appendChild(row);
+            }
+        }
+
+        function openModal(date) {
+            document.getElementById("eventDate").value = date;
+            $('#eventModal').modal('show');
+        }
+
+        document.getElementById("eventForm").addEventListener("", function(event) {
+            event.preventDefault();
+            const eventDate = document.getElementById("eventDate").value;
+            const eventTitle = document.getElementById("eventTitle").value;
+
+            if (!events[eventDate]) {
+                events[eventDate] = [];
+            }
+            events[eventDate].push(eventTitle);
+
+            $('#eventModal').modal('hide');
+            showCalendar(currentMonth, currentYear);
+        });
+
+        document.getElementById("prev").addEventListener("click", function() {
+            currentYear = (currentMonth === 0) ? currentYear - 1 : currentYear;
+            currentMonth = (currentMonth === 0) ? 11 : currentMonth - 1;
+            showCalendar(currentMonth, currentYear);
+        });
+
+        document.getElementById("next").addEventListener("click", function() {
+            currentYear = (currentMonth === 11) ? currentYear + 1 : currentYear;
+            currentMonth = (currentMonth === 11) ? 0 : currentMonth + 1;
+            showCalendar(currentMonth, currentYear);
+        });
+
+        showCalendar(currentMonth, currentYear);
+  </script>
+  <!-- Github buttons -->
+
+
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
+  <style>
+    .hj{
+      color:#0084FE
+      
+    }
+    .hj:hover{
+      font-color:
+      background:#E9E9E9;
+    }
+    .hn{
+      border: 1px solid #620062
+    }
+    #formModal1 .modal-dialog {
+      position: absolute;
+      right: 0;
+      margin: 0;
+      top: 0;
+      transform: translateX(0);
+  }
+  form{
+    width:500px;
+  }
+  /* Ensure the modal stays within view on smaller screens */
+  @media (max-width: 768px) {
+      #formModal1 .modal-dialog {
+          position: fixed;
+          right: 0;
+          margin: 0;
+          top: 0;
+          height: 100%;
+          transform: none;
+      }
+      form{
+        width:500px;
+      }
+  }
+  /* Hide the original file input */
+  .custom-file-input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+  }
+
+  /* Style the custom button */
+  .custom-file-label {
+      display: inline-block;
+      padding: 6px 12px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border-radius: 4px;
+  }
+            .myimg{
+              width:100px;
+              height:100px;
+            }
+        
+        .myimg{
+          width:100px;
+          height:100px;
+        }
+        input[type="text"], .ok{
+          border:1px solid lightgray;
+          width:90%;
+          padding:2px;
+        }
+        .label{
+          color:#620062;
+        }
+  </style>
+    <!-- End Navbar -->
+    <script>
+      document.querySelector('.custom-file-label').addEventListener('click', function() {
+          document.querySelector('.custom-file-input').click();
+      });
+  </script>
+    <script>
+      $(document).ready(function() {
+          // Open the first modal
+          $('#openModal1').on('click', function() {
+              $('#formModal1').modal('show');
+          });
+          $('#close').on('click', function(){
+            $('#formModal1').modal('hide')
+          });
+  
+         
+      });
+  </script>
+  <script src="{% static 'assets/js/material-dashboard.min.js' %}"></script>
+  <script src="{% static 'assets/js/script.js' %}"></script>
+  <script src="{% static 'assets/js/core/popper.min.js' %}"></script>
+  <script src="{% static 'assets/js/core/bootstrap.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/perfect-scrollbar.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/smooth-scrollbar.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/chartjs.min.js' %}"></script>
+</body>
+
+</html>

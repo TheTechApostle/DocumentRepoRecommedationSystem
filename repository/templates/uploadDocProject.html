@@ -1,0 +1,573 @@
+{% load static %}
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+{% include 'header.html' %}
+<style>
+    /* Centralize the div using flexbox */
+    .modal-dialogs {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 100px); /* Subtracting 100px for spacing */
+        margin: 50px auto; /* 50px space from top and bottom */
+    }
+    .file-upload-wrapper {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+    }
+    .file-upload-wrapper input[type="file"] {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+    .file-upload-link {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .file-upload-link:hover {
+        background-color: #0056b3;
+    }
+    /* Separate background div for opacity */
+    .modal-backgrounds {
+        background-color: white;
+        opacity: 0.8; /* Background opacity */
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 10px;
+        z-index: -1;
+    }
+
+    /* Content on top of the background */
+    .modal-contents {
+        position: relative;
+        padding: 20px;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    /* Customizing the icon size */
+    .modal-bodys i {
+        font-size: 2rem;
+        color: green;
+        margin-right: 10px;
+    }
+
+    /* Customizing the close button */
+    .modal-header .close {
+        padding: 1rem;
+        margin: -1rem -1rem -1rem auto;
+    }
+    .fa-ellipsis-h{
+        border:  1px solid lightgray
+    }
+    
+</style>
+
+<body class="g-sidenav-show  bg-gray-200">
+  {% include "asidehead.html" %}
+ 
+<!-- Modal -->
+
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
+    <!-- Navbar -->
+    {% include 'nav.html' %}
+    
+    <div class="container mt-5">
+        <div class="row">
+            <div class='col-lg-12 col-md-9 col-sm-10'>
+                <span class="text-right h5 my-3">Folders</span>
+                {% if messages %}
+                <div class="alert text-danger" role="alert" id="message">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+                {% for x in fdname %}
+                
+                    <div class="btn btn bg-all mb-2 p-3 letter-spacing-2 w-100 text-left text-white text-capitalize font-weight-light">
+                        <a href="../geteachDio/{{x.id}}" class="text-white">
+                            <i class="fa fa-folder rounded-circle h6 text-white" id="toggleButton{{ forloop.counter }}"></i> 
+                            <font family="calibri" style="font-size:14px">{{ x.foldername }}</font>
+                        
+                        <i class="fa fa-greater-than  float-right rounded-circle p-2 text-white border-white border-1" id="toggleButton_1{{ forloop.counter }}"></i>
+                    </a>
+                    </div>
+                
+                {% comment %} {% for y in myfile %}
+                <div class="check">
+                    <div class="well w-70" id="cardContent{{ forloop.counter }}">
+                            <div class="btn btn-white well text-left column p-0 d-flex ml-3 text-capitalize text-right" style="background:#D1E9FF">
+                                <i class="fa fa-file-archive-o h6 mx-3"></i>{{ y.filename }}
+                            </div>
+                    </div>
+                </div>
+                {% endfor %} {% endcomment %}
+                 {% comment %} <div class="card w-15 float-right" id="thgs{{ forloop.counter }}">
+            
+                    <div class="well" id="cardContents{{ forloop.counter }}">
+                        <div class="btn btn-white well text-left column p-0 d-flex ml-3 text-capitalize text-right m">
+                            <i class="fa fa-edit rounded-circle h4 mr-3" id="renamefile{{forloop.counter}}" data-toggle="modal" data-target="#renamefileModal"></i> 
+                            <span class="text-right  mt-1">Rename</span>
+                        </div>
+                        <hr>
+                        <div class="btn btn-white well text-left column p-0 d-flex ml-3 text-capitalize text-right m">
+                            <i class="fa fa-upload text-right h5 mr-3 rounded-circle" id="uploadfile{{forloop.counter}}" data-toggle="modal" data-target="#uploadfileModal"></i> 
+                            <span class="text-right  mt-1">Upload</span>
+                        </div>
+                        <hr>
+                        
+                        <a download="my-archive.zip" href="{{x.docs}}">
+                            <div class="btn btn-white well text-left column p-0 d-flex ml-3 text-capitalize text-right m">
+                            <i class="fa fa-download rounded-circle h5 mr-3"></i> 
+                            <span class="text-right  mt-1">Download</span>
+                        </a>
+                        
+                        </div>
+                        <hr>
+                        <div class="btn btn-white well text-left column p-0 d-flex ml-3 text-capitalize text-right m">
+                            <a href="../deletefolder/{{x.id}}" class="m"><i class="fa fa-trash rounded-circle h5 mr-3"></i> 
+                            <span class="text-right  mt-1">Delete</span></a>
+                        </div>
+                        
+                    </div>
+                </div>  {% endcomment %}
+                    <div class="card mb-3" id="thg{{ forloop.counter }}">
+            
+                        <div class="well" id="cardContent{{ forloop.counter }}">
+                            
+                        </div>
+                    </div>
+                    <!-- Rename-->
+                    <div class="modal fade" id="renamefileModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="renamefileModalLabel{{ forloop.counter }}" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="uploadfileModalLabel{{ forloop.counter }}">Rename Folder</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="close{{forloop.counter}}">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="uploadForm{{ forloop.counter }}" method="POST" enctype="multipart/form-data"action="{% url 'renamefolder' %}">
+                                    {% csrf_token %}
+                              <!-- Dropbox Area -->
+                                  
+                                    <div class="form-group">
+                                        <label for="title{{ forloop.counter }}">Parent Folder:</label>
+                                        <input type="text" value="{{ x.id}}" name="folderId">
+                                        <input type="text" class="form-control" id="title{{ forloop.counter }}" name="foldername" value="{{x.foldername}}" required>
+                                    </div>
+                                    
+                                    
+                            
+                                    <!-- Filename and Error Message Display Area -->
+                                    <div id="filename{{ forloop.counter }}" class="filename"></div>
+                                    <div id="errorMsg{{ forloop.counter }}" class="errorMsg"></div>
+                                    </div>
+                                    <div class="modal-footer">
+                                    
+                                    <button id="submitBtn{{ forloop.counter }}" class="submitBtn btn btn bg-all text-white w-40" type="submit">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                      </div>
+                    <!-- end rename-->
+                    <!-- Modal -->
+                    <div class="modal fade" id="uploadfileModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="uploadfileModalLabel{{ forloop.counter }}" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="uploadfileModalLabel{{ forloop.counter }}">Upload Your Image </h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="close{{forloop.counter}}">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="uploadForm{{ forloop.counter }}" method="POST" enctype="multipart/form-data"action="{% url 'upload_file_view' %}">
+                                    {% csrf_token %}
+                              <!-- Dropbox Area -->
+                                    <div id="dropbox{{ forloop.counter }}" class="dropbox w-90" data-counter="{{ forloop.counter }}">
+                                        <i class="fas fa-cloud-upload-alt h6"></i>
+                                        <span class="text-blue">Click to upload </span><span style="color:black">or drag and drop your image here JPG (max 800x400px)</span>
+                                        
+                                        <input type="file" id="fileInput{{ forloop.counter }}" name="image" accept="image/*">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="title{{ forloop.counter }}">File Name:</label>
+                                        <input type="text" class="form-control" id="title{{ forloop.counter }}" name="filename" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="title{{ forloop.counter }}">Parent Folder:</label>
+                                        <input type="text" class="form-control" id="title{{ forloop.counter }}" name="foldername" value="{{x.foldername}}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="title{{ forloop.counter }}">Project:</label>
+                                        <input type="text" class="form-control" id="title{{ forloop.counter }}" name="parentname" value="{{x.parentname}}" required>
+                                    </div>
+                            
+                                    <!-- Filename and Error Message Display Area -->
+                                    <div id="filename{{ forloop.counter }}" class="filename"></div>
+                                    <div id="errorMsg{{ forloop.counter }}" class="errorMsg"></div>
+                                    </div>
+                                    <div class="modal-footer">
+                                    
+                                    <button id="submitBtn{{ forloop.counter }}" class="submitBtn btn btn bg-all text-white w-40" type="submit">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                      </div>
+                    {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% comment %} <div class="modal fade" id="autoPopupModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialogs" role="document">
+          <div class="modal-content modal-contents">
+           
+                <br><br>
+            
+            <div class="modal-background modal-backgrounds"></div>
+            <div class="modal-body modal-bodys">
+                <center><img src="{% static 'assets/img/check_circle.png' %}" class="m-auto justify-content-center"></center><br>
+              <h6 class="justify-content-center align-content-lg-center text-center">Ok! A New Project has been Created!<h6>
+                <br><br>
+            </div>
+            
+          </div>
+        </div>
+      </div> {% endcomment %}
+      
+    {% comment %} <div class="row">
+        <div class="col-lg-4">
+            <img src="{% static 'assets/img/mylogo.png' %}" width="100%" height="120px"/>
+        </div>
+    </div> {% endcomment %}
+
+{% comment %} <div class="center-div container">
+    
+    <div class="card col-md-5" style="border:1px solid lightgray">
+        <img src="{% static 'assets/img/imageFile.jpg' %}" alt="Your Image" class="img-fluid mb-4" style="height:150px">
+        <h4 class="px-3">Upload File to Specific Directory</h4>
+        <form method="post" enctype="multipart/form-data" class="px-3" id="quick-form" post="{% url 'uploadproject' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                
+                <input type="POST" name="name_of_project" class="form-control" style="border:1px solid lightgray" value="{{ request.user.username }}">
+                <div class="form-group">
+                    <label for="custom_dir" class="form-label">Name of Project</label>
+                    <input type="POST" name="name_of_project" class="form-control" style="border:1px solid lightgray">
+                </div>
+                <div class='form-group'>
+                    <label>Choose Directory</label>
+                    <select name="custom_dir" id="custom_dir" class="form-control" style="border:1px solid lightgray">
+                        {% for x in directory %}
+                            <option>{{ x.foldername }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="file" class="form-label">Choose File</label>
+                <input type="file" name="file" id="file" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-info bg-all">Upload</button>
+            <a href="{% url 'dashboard' %}" class="float-right">Back to Dashboard</a>
+            <div class="" id="result"></div>
+        </form>
+    </div>
+</div> {% endcomment %}
+<!-- Button to trigger modal -->
+
+<!-- Button to trigger modal -->
+
+  <!-- Modal -->
+  
+
+{% include "footlink.html" %}
+</main>
+</body>
+<script>
+    $(document).ready(function(){
+        {% for x in fdname %}
+        $('#uploadfile{{forloop.counter}}').on('click', function(){
+            $('#uploadfileModal{{forloop.counter}}').modal('show');
+        });
+        $('#renamefile{{forloop.counter}}').on('click', function(){
+            $('#renamefileModal{{forloop.counter}}').modal('show');
+        });
+        $('#close{{forloop.counter}}').on('click', function(){
+            $('#uploadfileModal{{forloop.counter}}').modal('hide');
+        });
+        
+        $('#MytoggleButton{{forloop.counter}}').on('click', function(){
+            $('#dfheld{{forloop.counter}}').toggle();
+        });
+       
+
+        /*$('#createFolderForm{{forloop.counter}}').on('submit', function(e){
+            e.preventDefault(); // Prevent the form from submitting normally
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "projectfolder" %}',  // Django URL that handles the form submission
+                    data: {
+                        folderTitle: $('#folderTitle{{forloop.counter}}').val(),
+                        csrfmiddlewaretoken: '{{ csrf_token }}',  // Ensure CSRF token is included
+                    },
+                    success: function(response){
+                        $('#message').html('<div class="alert alert-success">' + response.message + '</div>');
+                        $('#createFolderModal').modal('hide');  // Hide the modal
+                    },
+                    error: function(response){
+                        $('#message').html('<div class="alert alert-danger">Error creating folder.</div>');
+                    }
+                });
+        });*/
+        {% endfor %}
+    });
+</script>
+<script>
+    
+    $(document).ready(function(){
+        $('#quick-formh').on('submit', function(e){
+            e.preventDefault(); // Prevent the default form submission
+            var formData = $(this).serialize(); // Serialize form data
+
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'uploadproject' %}", // Replace with your URL
+                data: formData,
+                success: function(response){
+                    // Handle the response here
+                    $('#result').html('<div class="alert alert-success">Form submitted successfully!</div>');
+                },
+                error: function(xhr, status, error){
+                    // Handle the error here
+                    $('#result').html('<div class="alert alert-danger">Error occurred: ' + error + '</div>');
+                }
+            });
+        });
+    });
+</script>
+<script>
+    $(document).ready(function(){
+        $('#autoPopupModal').modal('show');
+        setTimeout(function(){
+            $('#autoPopupModal').modal('hide');
+        }, 3000);
+    });
+</script>
+
+
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  
+ 
+  <script src="{% static 'assets/js/material-dashboard.min.js' %}"></script>
+  <script src="{% static 'assets/js/script.js' %}"></script>
+  <script src="{% static 'assets/js/core/popper.min.js' %}"></script>
+  <script src="{% static 'assets/js/core/bootstrap.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/perfect-scrollbar.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/smooth-scrollbar.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/chartjs.min.js' %}"></script>
+  
+
+</body>
+
+</html>
+
+<script>
+    $(document).ready(function(){
+        {% for x in fdname %}
+            // Toggle the content of each card
+            $('#toggleButton{{ forloop.counter }}').click(function(){
+                var selectedText = $(this).text();
+                $('#centralText').text(selectedText).addClass('font-weight-bold');
+                $('#cardContent{{ forloop.counter }}').slideToggle();
+            });
+        {% endfor %}
+    });
+    $(document).ready(function(){
+        {% for x in fdname %}
+            // Toggle the content of each card
+            $('#toggleButton_1{{ forloop.counter }}').click(function(){
+                var selectedText = $(this).text();
+                $('#centralText').text(selectedText).addClass('font-weight-bold');
+                $('#cardContents{{ forloop.counter }}').slideToggle();
+            });
+        {% endfor %}
+    });
+</script>
+<style>
+    {% for x in fdname %}
+    #cardContent{{ forloop.counter }}, #cardContents{{ forloop.counter }}{
+        display:none;
+    }
+    {% endfor %}
+    
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropboxes = document.querySelectorAll('.dropbox');
+    
+        dropboxes.forEach(function(dropbox) {
+            const counter = dropbox.dataset.counter;
+            const filenameElem = document.getElementById(`filename${counter}`);
+            const errorMsgElem = document.getElementById(`errorMsg${counter}`);
+            const submitBtn = document.getElementById(`submitBtn${counter}`);
+            let selectedFile = null;
+    
+            dropbox.addEventListener('dragenter', preventDefaults, false);
+            dropbox.addEventListener('dragover', preventDefaults, false);
+            dropbox.addEventListener('dragleave', preventDefaults, false);
+            dropbox.addEventListener('drop', preventDefaults, false);
+    
+            dropbox.addEventListener('dragover', function() {
+                dropbox.classList.add('dragover');
+            });
+    
+            dropbox.addEventListener('dragleave', function() {
+                dropbox.classList.remove('dragover');
+            });
+    
+            dropbox.addEventListener('drop', function(event) {
+                dropbox.classList.remove('dragover');
+                const files = event.dataTransfer.files;
+                handleFiles(files, counter);
+            });
+    
+            function preventDefaults(event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+    
+            function handleFiles(files, counter) {
+                selectedFile = files[0];
+                const img = new Image();
+                img.src = URL.createObjectURL(selectedFile);
+                img.onload = function() {
+                    if (img.width <= 800 && img.height <= 400) {
+                        filenameElem.textContent = `Selected file: ${selectedFile.name}`;
+                        errorMsgElem.textContent = '';  
+                        submitBtn.disabled = false; 
+                    } else {
+                        filenameElem.textContent = '';
+                        errorMsgElem.textContent = 'Error: Image dimensions must not exceed 800x400 pixels.';
+                        submitBtn.disabled = true;
+                    }
+                };
+                img.onerror = function() {
+                    errorMsgElem.textContent = 'Error loading image.';
+                    submitBtn.disabled = true;
+                };
+            }
+    
+            submitBtn.addEventListener('click', function() {
+                if (selectedFile) {
+                    // Append the file to the form data
+                    const formData = new FormData(form);
+                    formData.append('image', selectedFile);
+    
+                    // Submit the form using Fetch API
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('File uploaded successfully');
+                            form.reset(); // Reset form fields
+                            filenameElem.textContent = '';
+                            submitBtn.disabled = true;
+                            $(`#uploadfileModal${counter}`).modal('hide'); // Hide the modal
+                        } else {
+                            errorMsgElem.textContent = 'Error uploading file.';
+                        }
+                    })
+                    .catch(error => {
+                        errorMsgElem.textContent = 'Error uploading file.';
+                        console.error('Error:', error);
+                    });
+                }
+            });
+        });
+    });
+    </script>
+    <style>
+        
+        {% for x in myfile %}
+        #dfheld{{forloop.counter}}{
+            display:none;
+        }
+        #check{{forloop.counter}}{
+            display:none;
+        }
+        #dropbox{{forloop.counter}}{
+            width: 100%;
+            height: 200px;
+            border: 2px dashed #007bff;
+            border-radius: 10px;
+            text-align: center;
+            color: #007bff;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        #dropbox i {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+
+        #filename, #errorMsg {
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #errorMsg {
+            color: red;
+        }
+
+        #dropbox.dragover{{forloop.counter}} {
+            border-color: #0056b3;
+            background-color: #f0f8ff;
+        }
+
+        #submitBtn {
+            display: block;
+            margin: 0 auto;
+        }
+
+        #submitBtn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        {% endfor %}
+        .m:hover{
+            padding:0;
+            background:#99CEFF;
+        }
+    </style>

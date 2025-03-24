@@ -1,0 +1,8 @@
+pip install 
+pip install -U django-jazzmin
+pip install django transformers torch pandas scikit-learn numpy
+pip install python-docx PyMuPDF sumy
+pip install pdfplumber
+pip install scikit-learn
+
+

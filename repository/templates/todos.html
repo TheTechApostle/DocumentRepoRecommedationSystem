@@ -1,0 +1,494 @@
+{% load static %}
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="//cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
+{% include 'header.html' %}
+<style>
+        /* Style the toolbar */
+        .toolbar {
+            border: 1px solid #ccc;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+
+        /* Style the editable area */
+        #editableArea {
+            border: 1px solid #ccc;
+            padding: 10px;
+            min-height: 200px;
+            outline: none;
+        }
+
+        /* Style the color input fields */
+        .color-input {
+            padding: 2px;
+            border: 1px solid #ccc;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+        ul li a {
+          text-decoration: none;
+      }
+        /* Style toolbar buttons */
+        .toolbar button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            margin-right: 5px;
+        }
+
+        /* Hide the file input by default */
+        #fileInput {
+            display: none;
+        }
+    
+    /* Centralize the div using flexbox */
+    .modal-dialogs {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 100px); /* Subtracting 100px for spacing */
+        margin: 50px auto; /* 50px space from top and bottom */
+    }
+
+    /* Separate background div for opacity */
+    .modal-backgrounds {
+        background-color: white;
+        opacity: 0.8; /* Background opacity */
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 10px;
+        z-index: -1;
+    }
+
+    /* Content on top of the background */
+    .modal-contents {
+        position: relative;
+        padding: 20px;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    /* Customizing the icon size */
+    .modal-bodys i {
+        font-size: 2rem;
+        color: green;
+        margin-right: 10px;
+    }
+
+    /* Customizing the close button */
+    .modal-header .close {
+        padding: 1rem;
+        margin: -1rem -1rem -1rem auto;
+    }
+    .fa-ellipsis-h{
+        border:  1px solid lightgray
+    }
+    
+</style>
+
+<body class="g-sidenav-show  bg-gray-200">
+    <aside class="sidenav navbar bg-all navbar-vertical navbar-expand-xs border-0   fixed-start" id="sidenav-main">
+        <div class="sidenav-header" style="background-color:#fff;">
+          
+          
+            <img src="{% static 'assets/img/mylogo.png' %}"  style="height:100px; width:100%;">
+            
+            
+        </div>
+        <hr class="horizontal light mt-0 mb-2">
+        <div class="collapse navbar-collapse  w-auto  max-height-vh-100" id="sidenav-collapse-main" style="height:inherit">
+          <br>
+          <ul class="navbar-nav">
+            
+            <li class="nav-item">
+              <a class="nav-link text-white" href="./pages/dashboard.html">
+                <div class="text-right text-center me-2 d-flex align-items-center justify-content-center" style="color:#620062">
+                  <i class="fa fa-home-alt h6 text-white h5"></i>
+                </div>
+                <span class="nav-link-text ms-1 text-white ">Home</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'uploadproject' %}">
+                <div class="text-right text-center me-2 d-flex align-items-center justify-content-center" style="color:#fff">
+                  <img src="{% static 'assets/img/widget.png' %}"  style="height:20px; width:20px;">
+                </div>
+                <span class="nav-link-text ms-1  text-white">Projects</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-right bg-white" href="#">
+                <div class="text-right text-center me-2 d-flex align-items-center justify-content-center">
+                  {% comment %} <i class="fa fa-folder-open-o h5 text-right"></i> {% endcomment %}
+                  <img src="{% static 'assets/img/folder_opens.png' %}"  style="height:20px; width:20px;">
+                </div>
+                <span class="nav-link-text ms-1 text-bold text-right">Documents</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-right" href="{% url 'chat' %}">
+                <div class="text-right text-center me-2 d-flex align-items-center justify-content-center">
+                  {% comment %} <i class="fa fa-folder-open-o h5 text-right"></i> {% endcomment %}
+                  <i class="fa fa-comments fa-circle text-white h6"></i>
+                </div>
+                <span class="nav-link-text ms-1 text-white">Chats</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white " href="#">
+                <div class="text-right text-center me-2 d-flex align-items-center justify-content-center" style="color:#620062">
+                  <img src="{% static 'assets/img/pace.png' %}"  style="height:20px; width:20px;">
+                </div>
+                <span class="nav-link-text ms-1">Activities</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white " href="#">
+                <div class="text-right text-center me-2 d-flex align-items-center justify-content-center" style="color:#620062">
+                  <img src="{% static 'assets/img/inventory_2.png' %}"  style="height:20px; width:20px;">
+                </div>
+                <span class="nav-link-text ms-1">Assignment</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white " href="#">
+                <div class="text-right text-center me-2 d-flex align-items-center justify-content-center" style="color:#620062">
+                  <img src="{% static 'assets/img/groups.png' %}"  style="height:20px; width:20px;">
+                </div>
+                <span class="nav-link-text ms-1">Meetings</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white " href="#">
+                <div class="text-right text-center me-2 d-flex align-items-center justify-content-center" style="color:#620062">
+                  <img src="{% static 'assets/img/calendar_month.png' %}"  style="height:20px; width:20px;">
+                </div>
+                <span class="nav-link-text ms-1">Calendar</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white " href="{% url 'logout'%}">
+                <div class="text-right text-center me-2 d-flex align-items-center justify-content-center" style="color:#620062">
+                  <img src="{% static 'assets/img/logout.png' %}"  style="height:20px; width:20px;">
+                </div>
+                <span class="nav-link-text ms-1">Logout</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+       <!--  <div class="sidenav-footer position-absolute w-100 bottom-0 ">
+          <div class="mx-3">
+            <a class="btn bg-gradient-primary mt-4 w-100" href="https://www.creative-tim.com/product/material-dashboard-pro?ref=sidebarfree" type="button">Upgrade to pro</a>
+          </div>
+        </div> -->
+      </aside>
+ 
+<!-- Modal -->
+
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
+    <!-- Navbar -->
+    {% include 'nav.html' %}
+    
+    <div class="container mt-5">
+       
+    <!-- Modal -->
+    
+        <div class="row">
+            <div class='col-lg-12 col-md-9 col-sm-10'>
+                <a href="{% url 'document' %}">
+                <div class="btn btn bg-all mb-2 p-2 text-center letter-spacing-2 w-8 text-left text-white text-capitalize font-weight-light float-left">
+                     
+                        <font family="calibri" style="font-size:13px">Back</font>
+                    {% comment %} <i class="fa fa-ellipsis-h  float-right rounded-circle p-2 text-white border-white border-1" data-toggle="modal" data-target="#reference"></i> {% endcomment %}
+                </div>
+              </a>
+              
+            
+                <div class="btn btn bg-all mb-2 p-2 mr-4 text-center letter-spacing-2 w-15 text-left text-white text-capitalize font-weight-light float-right" data-toggle="modal" data-target="#reference">
+                    <i class="fa fa-plus rounded-circle h6 text-white" id="toggleButton"></i> 
+                        <font family="calibri" style="font-size:12px">New List</font>
+                    {% comment %} <i class="fa fa-ellipsis-h  float-right rounded-circle p-2 text-white border-white border-1"></i> {% endcomment %}
+                </div>
+                <!-- Modal -->
+   <div class="modal fade md" id="reference" tabindex="-1" role="dialog" aria-labelledby="referenceLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                
+            </div>
+            <div class="modal-body">
+                
+                <div class="pl-3" style="border:none; box-shadow:0px">
+                    <form method="POST" enctype="multipart/form-data" class="w-100">
+                        {% csrf_token %}
+                        <h4 class="text-left">To-dos</h4>
+                        <div class="form-group">
+                            <label class="h6 text-right">Task List</label>
+                            <input type="text" name="documentName" class="form-control"  value="{{docN}}" hidden>
+                            <input type="text" name="tasklist" class="form-control" require>
+                        </div>
+                        <div class="form-group">
+                            <label class="h6 text-right">Assignee</label>
+                            <select name="assignee" class="form-control w-90" required style="border:1px solid lightgray;color:#7da0d0 ">
+                              {% for y in users %}
+                              <option><i class="text-italic text-primary" style="color:lightblue">@{{y.username}}</i></option>
+                              {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="h6 text-right">Task details</label>
+                            <textarea class="form-control w-90" id="taskdetails" name="taskdetails" style="border:1px solid lightgray"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="h6 text-right">Due on</label>
+                            <input type="datetime-local" name="dueon" class="form-control" style="border:1px solid lightgray" require>
+                        </div>
+                        <button name="create" class="btn btn bg-all mb-2 text-bold p-2 mr-4 w-100 text-center letter-spacing-2 w-15 text-left text-white font-weight-light float-right" type="submit">
+                            <i class="fa fa-plus rounded-circle h6 text-white" id="toggleButton"></i> 
+                                <font family="calibri" style="font-size:12px">Add Task</font>
+                            {% comment %} <i class="fa fa-ellipsis-h  float-right rounded-circle p-2 text-white border-white border-1"></i> {% endcomment %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    <section class="m-2 bg-white container">
+            <div class="card p-3">
+                <h4 class="text-left">To-dos</h4>
+                
+               {% if messages %}
+                  <div class="alert text-success" role="alert" id="message">
+                      {% for message in messages %}
+                          <p>{{ message }}</p>
+                      {% endfor %}
+                  </div>
+                {% endif %}
+                <hr>          
+                <div class="row">
+                  {% for x  in todos %}
+                  <div class="col-lg-4 card rounded-md" style="border-radius:10px 10px; font-familly:Comic Sans MS">
+                    <div class="p-3 bg-all h5 header text-white text-bold">
+                        {{ x.tasklist }} 
+                        <!-- Dropdown Trigger -->
+                        <div class="dropdown float-right">
+                            <i class="fa fa-ellipsis-v text-white" id="dropdownMenuButton{{ x.id }}" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;"></i>
+                
+                            <!-- Dropdown Menu -->
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton{{ x.id }}">
+                              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ x.id }}">Edit</a></li>
+                                <li><a class="dropdown-item" href="../deleteTodo/{{x.id}}">Delete</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="jumbotron text-black" style="padding:-10px; color:#000;">
+                        <p class="p-0"><b>Details</b>: {{ x.taskdetails }}</p>
+                        <p class="p-0"><b>Due on:</b> {{ x.dueon }}</p>
+                        <p class="p-0"><b>Assigned to:</b> <span style="color:#7da0d0">{{ x.assignee }}</span></p>
+                    </div>
+                </div>
+                
+
+                <!-- Modal -->
+<div class="modal fade" id="editModal{{ x.id }}" tabindex="-1" aria-labelledby="editModalLabel{{ x.id }}" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="editModalLabel{{ x.id }}">Edit Task</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <!-- Edit Task Form -->
+              <form method="post">
+                  {% csrf_token %}
+                  <div class="mb-3">
+                      <label for="tasklist{{ x.id }}" class="form-label">Task List</label>
+                      <input type="text" class="form-control" id="tasklist{{ x.id }}" name="tasklist" value="{{ x.tasklist }}">
+                      <input type="text" class="form-control" id="tasklist{{ x.id }}" name="id" value="{{ x.id }}" hidden>
+                  </div>
+                  <div class="mb-3">
+                      <label for="taskdetails{{ x.id }}" class="form-label">Task Details</label>
+                      <textarea class="form-control w-90" id="taskdetails{{ x.id }}" name="taskdetails" style="border:1px solid lightgray;">{{ x.taskdetails }}</textarea>
+                  </div>
+                  <div class="mb-3">
+                      <label for="dueon{{ x.id }}" class="form-label">Due On Initially</label>
+                      <input type="text" value="{{x.dueon}}" name="mydueon" class="form-control">
+                      <label for="dueon{{ x.id }}" class="form-label">Main Due On </label>
+                      <span class="mx-auto text-center justify-content-center" style="text-align:center">
+                        <font color="#d572c8" style="font-size:12px;" class="text-center">** set  date to initial if no update </font>
+                      </span>
+                      <input type="datetime-local" class="form-control w-90"  style="border:1px solid lightgray" id="dueon{{ x.id }}" name="dueon" value="{{ x.dueon }}" require>
+                  </div>
+                  <div class="mb-3">
+                      <label for="assignee{{ x.id }}" class="form-label">Assigned To</label>
+                      <select  class="form-control w-90" id="assignee{{ x.id }}" name="assignee" required style="border:1px solid lightgray;color:#7da0d0 ">
+                        <option><i class="text-italic text-primary" style="color:lightblue">{{ x.assignee }}</i></option>
+                        {% for y in users %}
+                        
+                        <option><i class="text-italic text-primary" style="color:lightblue">@{{y.username}}</i></option>
+                        {% endfor %}
+                      </select>
+                      
+                  </div>
+                  <button type="submit" class="btn btn bg-all text-white w-90" name="update_record">Save changes</button>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>
+
+                <!-- Include Font Awesome and Bootstrap JS (if not already included in your project) -->
+                <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                
+                  {% endfor %}
+                  
+                  
+                </div>
+              </div>
+        </section>
+        <div class="dropdown">
+          <i class="fa fa-ellipsis-v" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;"></i>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <li><a class="dropdown-item" href="#">Edit</a></li>
+              <li><a class="dropdown-item" href="#">Delete</a></li>
+          </ul>
+      </div>
+      <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+          
+  
+      <!-- Include jQuery -->
+  
+
+{% include "footlink.html" %}
+</main>
+</body>
+
+<script>
+  $(document).ready(function(){
+    {% for x in messageCk %}
+      // Toggle the visibility of the side card when the button is clicked
+      $("#openSideCard{{forloop.counter}}").click(function(){
+          $("#sideCard{{forloop.counter}}").toggle();
+      });
+
+      // Close the side card when the close button is clicked
+      $("#closeSideCard1").click(function(){
+          $("#sideCard1").hide();
+      });
+      {% endfor %}
+  });
+</script>
+
+<script>
+    $(document).ready(function(){
+        {% for x in directory %}
+        $('#addfolder{{forloop.counter}}').on('click', function(){
+            $('#createFolderModal{{forloop.counter}}').modal('show');
+        });
+
+        /*$('#createFolderForm{{forloop.counter}}').on('submit', function(e){
+            e.preventDefault(); // Prevent the form from submitting normally
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "projectfolder" %}',  // Django URL that handles the form submission
+                    data: {
+                        folderTitle: $('#folderTitle{{forloop.counter}}').val(),
+                        csrfmiddlewaretoken: '{{ csrf_token }}',  // Ensure CSRF token is included
+                    },
+                    success: function(response){
+                        $('#message').html('<div class="alert alert-success">' + response.message + '</div>');
+                        $('#createFolderModal').modal('hide');  // Hide the modal
+                    },
+                    error: function(response){
+                        $('#message').html('<div class="alert alert-danger">Error creating folder.</div>');
+                    }
+                });
+        });*/
+        {% endfor %}
+    });
+</script>
+
+
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  
+ 
+  <script src="{% static 'assets/js/material-dashboard.min.js' %}"></script>
+  <script src="{% static 'assets/js/script.js' %}"></script>
+  <script src="{% static 'assets/js/core/popper.min.js' %}"></script>
+  <script src="{% static 'assets/js/core/bootstrap.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/perfect-scrollbar.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/smooth-scrollbar.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/chartjs.min.js' %}"></script>
+  <script>
+    CKEDITOR.replace('content');
+  </script>
+<script>
+    $(document).ready(function(){
+        {% for x in directory %}
+            // Toggle the content of each card
+            $('#toggleButton{{ forloop.counter }}').click(function(){
+                var selectedText = $(this).text();
+                $('#centralText').text(selectedText).addClass('font-weight-bold');
+                $('#cardContent{{ forloop.counter }}').slideToggle();
+            });
+        {% endfor %}
+    });
+    $(document).ready(function(){
+        {% for x in directory %}
+            // Toggle the content of each card
+            $('#toggleButton_1{{ forloop.counter }}').click(function(){
+                var selectedText = $(this).text();
+                $('#centralText').text(selectedText).addClass('font-weight-bold');
+                $('#cardContents{{ forloop.counter }}').slideToggle();
+            });
+        {% endfor %}
+    });
+</script>
+<style>
+  li{
+    decoration:none;
+  }
+    {% for x in directory %}
+    #cardContent{{ forloop.counter }}, #cardContents{{ forloop.counter }}{
+        display:none;
+    }
+    {% endfor %}
+    {% for x in messageCk %}
+    #sideCard{{forloop.counter}} {
+      display: none; /* Initially hidden */
+      position: absolute;
+      top: 10px;
+      left: 200px; /* Position it relative to the button */
+      width: 30;
+      background-color: #f8f9fa;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      padding: 1px;
+      z-index: 1000;
+  }
+
+  #sideCard{{forloop.counter}} h2 {
+      font-size: 18px;
+      margin-bottom: 5px;
+  }
+  {% endfor %}
+</style>

@@ -1,0 +1,32 @@
+{% include 'nav_.html'%}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg p-4 border-0 rounded">
+                <h3 class="text-center text-primary mb-4">
+                    <i class="fa fa-file"></i> Upload Chapter One or Abstract of your Project
+                </h3>
+                <h2>Upload Document (PDF or DOCX)</h2>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group"> 
+                        {{ form.as_p }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </form>
+                <br>
+                {% if messages %}
+                    <div>
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <a href="{% url 'document_list' %}">View Saved Documents</a>
+    
+    {% include 'footlink.html'%}
+</body>
+</html>

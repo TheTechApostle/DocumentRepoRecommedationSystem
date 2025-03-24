@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>{% block title %} TekPhluent CollabHub {% endblock %}</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="apple-touch-icon" sizes="76x76" href="{% static 'assets/img/mylogo.png' %}">
+        <link rel="icon" type="image/png" href="{% static 'assets/img/favicon.png' %}">
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900|Roboto+Slab:400,700" />
+        <link href="{% static 'assets/css/nucleo-icons.css' %}" rel="stylesheet" />
+      
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <link href="{% static 'assets/css/nucleo-svg.css' %}" rel="stylesheet" />
+        <!-- Font Awesome Icons -->
+        <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+        <!-- CSS Files -->
+        <link id="pagestyle" href="{% static 'assets/css/material-dashboard.css' %}" rel="stylesheet" />
+        <link id="pagestyle" href="{% static 'assets/css/bootstrap.css' %}" rel="stylesheet" />
+        <link id="pagestyle" href="{% static 'assets/css/check.css' %}" rel="stylesheet" />
+        
+        <link id="pagestyle" href="{% static 'assets/css/check.css' %}" rel="stylesheet" />
+    </head>
+
+        
+        
+        
+
+    {% block content %}
+    {% endblock %}
+<!-- base.html or form.html -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'assets/js/script.js' %}"></script>
+
+<script src="" async defer></script>
+</body>
+</html>

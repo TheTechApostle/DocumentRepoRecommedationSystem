@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Document List</title>
+</head>
+<body>
+    <h2>Saved Documents</h2>
+    <ul>
+        {% for document in documents %}
+            <li>
+                <strong>{{ document.title }}</strong> 
+                <br> <em>Summary:</em> {{ document.summary }}
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'upload_document' %}">Upload Another Document</a>
+</body>
+</html>

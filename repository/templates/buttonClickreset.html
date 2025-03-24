@@ -1,0 +1,117 @@
+
+{% extends 'base_url.html' %}
+{% load static %}
+{% block title %}Login TechPhluent{% endblock %}
+{% block content  %}
+
+</style>
+<script>
+    // script.js
+$(document).ready(function() {
+    $('#myForm').on('submit', function(e) {
+        e.preventDefault(); // Prevent the form from submitting the traditional way
+        
+        $.ajax({
+            type: 'POST',
+            url: '{% url "buttonClickreset" %}',  // URL to send the request to
+            data: $(this).serialize(),  // Serialize the form data
+            success: function(response) {
+                if (response.status === 'success') {
+                    $('#message').html('<p>' + response.message + '</p>');
+                } else {
+                    let errors = '';
+                    $.each(response.errors, function(key, value) {
+                        errors += '<p style="color:green">' + key + ': ' + value + '</p>';
+                    });
+                    $('#message').html(errors);
+                }
+            },
+            error: function() {
+                $('#message').html('<p>An error occurred.</p>');
+            }
+        });
+    });
+});
+
+</script>
+<body style="background:#CCE6FF">
+    
+    {{ lastOtp }}
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4">
+                <img src="{% static 'assets/img/mylogo.png' %}" width="100%" height="120px"/>
+            </div>
+        </div>
+        <div class="row  d-flex justify-content-center align-items-center">
+            <div class="col-md-6">
+                
+                <div class="card">
+                    <div class="card-body run">
+                        <h6 class="card-title text-center"><div class="timer" id="timer">60</div></h6>
+                        <form method="POST"  id="myForm">
+                            {% csrf_token %}
+                            
+                            <h5 class="text-right">Enter the code sent to your Email to Reset Password<h5>
+                            <div class="form-group mt-3">
+                                <label for="username" class="h6">Enter Code</label>
+                                <input type="text" class="form-control" id="otpcode" name="otpcode" required>
+                            </div>
+                            <br>
+                            <button type="submit" class="btn btn-primary btn-block" style="background:#006ACB">send</button>
+                        </form>
+                        <div class="text-center mt-3">
+                            <a href="{%  url 'resendcode' %}" class="text-secondary"> <span class="text-primary text-sm">Resend code</span></a>
+                        </div>
+                        {% if messages %}
+                            <div class="alert " role="alert" id="message">
+                                {% for message in messages %}
+                                    <p>{{ message }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // timer.js
+
+window.onload = function() {
+    // Get the timer element
+    const timerElement = document.getElementById('timer');
+    
+    // Set the initial time (30 seconds)
+    let timeLeft = 59;
+    
+    // Update the timer every second
+    const timerInterval = setInterval(() => {
+        if (timeLeft <= 0) {
+            // When time is up, stop the interval
+            clearInterval(timerInterval);
+            timerElement.innerHTML = "Time's up, code expire!";
+        } else {
+            // Update the timer display
+            timerElement.innerHTML = timeLeft;
+            timeLeft--;
+        }
+    }, 1000); // 1000 milliseconds = 1 second
+};
+
+    </script>
+    <style>
+        .timer {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ff0000; /* Red color */
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<body>
+
+
+
+
+{% endblock  %}

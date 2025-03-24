@@ -1,0 +1,381 @@
+{% load static %}
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+{% include 'header.html' %}
+<style>
+    /* Centralize the div using flexbox */
+    .modal-dialogs {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 100px); /* Subtracting 100px for spacing */
+        margin: 50px auto; /* 50px space from top and bottom */
+    }
+
+    /* Separate background div for opacity */
+    .modal-backgrounds {
+        background-color: white;
+        opacity: 0.8; /* Background opacity */
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 10px;
+        z-index: -1;
+    }
+
+    /* Content on top of the background */
+    .modal-contents {
+        position: relative;
+        padding: 20px;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    /* Customizing the icon size */
+    .modal-bodys i {
+        font-size: 2rem;
+        color: green;
+        margin-right: 10px;
+    }
+
+    /* Customizing the close button */
+    .modal-header .close {
+        padding: 1rem;
+        margin: -1rem -1rem -1rem auto;
+    }
+    .fa-ellipsis-h{
+        border:  1px solid lightgray
+    }
+    form-group, form-control{
+      
+    }
+</style>
+
+<body class="g-sidenav-show  bg-gray-200">
+  <aside class="sidenav navbar bg-all navbar-vertical navbar-expand-xs border-0   fixed-start" id="sidenav-main" style="background:#620063">
+    <div class="sidenav-header" style="background-color:#fff;">
+      
+      
+      <img src="{% static 'assets/img/mylogo.jpg' %}"  style="height:100px; width:100%;">
+        
+        
+    </div>
+    <hr class="horizontal light mt-0 mb-2"/>
+    <div class="collapse navbar-collapse bg-all w-auto  max-height-vh-100" id="sidenav-collapse-main" style="overflow:hidden; height:85%">
+      <br>
+          <ul class="navbar-nav">
+            
+            <li class="nav-item">
+              <a class="nav-link text-white" href="{% url 'dashboard' %}">
+                <div class="text-right text-center me-2 d-flex align-items-center justify-content-center" style="color:#620062">
+                  <i class="fa fa-home-alt h6 text-white"></i>
+                </div>
+                <span class="nav-link-text ms-1 text-white ">Home</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'uploadproject' %}">
+                <div class="text-right text-center me-2 d-flex align-items-center justify-content-center" style="color:#fff">
+                  <img src="{% static 'assets/img/widget.png' %}"  style="height:20px; width:20px;">
+                </div>
+                <span class="nav-link-text ms-1  text-white">Projects</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white " href="{% url 'document'%}">
+                <div class="text-right text-center me-2 d-flex align-items-center justify-content-center" style="color:#620062">
+                  <img src="{% static 'assets/img/folder_open.png' %}"  style="height:20px; width:20px;">
+                </div>
+                <span class="nav-link-text ms-1">Documents</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-right" href="{% url 'chatroom' %}">
+                <div class="text-right text-center me-2 d-flex align-items-center justify-content-center">
+                  {% comment %} <i class="fa fa-folder-open-o h5 text-right"></i> {% endcomment %}
+                  <i class="fa fa-comments fa-circle text-white h6"></i>
+                </div>
+                <span class="nav-link-text ms-1 text-white">Chats</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white " href="">
+                <div class="text-right text-center me-2 d-flex align-items-center justify-content-center" style="color:#620062">
+                  <img src="{% static 'assets/img/pace.png' %}"  style="height:20px; width:20px;">
+                </div>
+                <span class="nav-link-text ms-1">Activities</span>
+              </a>
+            </li>
+            
+            <li class="nav-item">
+              <a class="nav-link text-white " href="{% url  'schedule_meeting' %}">
+                <div class="text-right text-center me-2 d-flex align-items-center justify-content-center" style="color:#620062">
+                  <img src="{% static 'assets/img/groups.png' %}"  style="height:20px; width:20px;">
+                </div>
+                <span class="nav-link-text ms-1">Meetings</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white " href="{% url 'calendar' %}">
+                <div class="text-right text-center me-2 d-flex align-items-center justify-content-center" style="color:#620062">
+                  <img src="{% static 'assets/img/calendar_month.png' %}"  style="height:20px; width:20px;">
+                </div>
+                <span class="nav-link-text ms-1">Calendar</span>
+              </a>
+            </li>
+            
+              {% if 'Admin' in user_groups or 'Super Admin' in user_groups %}
+                <li class="nav-item">
+                    <a class="nav-link text-white bg-white" href="{% url 'add_user' %}">
+                        <div class="text-right text-center me-2 d-flex align-items-center justify-content-center" style="color:#620062">
+                            <i class="fa fa-plus-circle text-right" style="color:#000062"></i>
+                        </div>
+                        <span class="nav-link-text ms-1 text-right text-bold">Add User</span>
+                    </a>
+                </li>
+              {% endif %}
+            
+            <li class="nav-item">
+              <a class="nav-link text-white " href="{% url 'logout' %}">
+                <div class="text-right text-center me-2 d-flex align-items-center justify-content-center" style="color:#620062">
+                  <img src="{% static 'assets/img/logout.png' %}"  style="height:20px; width:20px;">
+                </div>
+                <span class="nav-link-text ms-1">Logout</span>
+              </a>
+            </li>
+            <!-- <li class="nav-item mt-3">
+              <h6 class="ps-4 ms-2 text-uppercase text-xs text-white font-weight-bolder opacity-8">Account pages</h6>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white " href="./pages/profile.html">
+                <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                  <i class="material-icons opacity-10">person</i>
+                </div>
+                <span class="nav-link-text ms-1">Profile</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white " href="./pages/sign-in.html">
+                <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                  <i class="material-icons opacity-10">login</i>
+                </div>
+                <span class="nav-link-text ms-1">Sign In</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white " href="./pages/sign-up.html">
+                <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                  <i class="material-icons opacity-10">assignment</i>
+                </div>
+                <span class="nav-link-text ms-1">Sign Up</span>
+              </a>
+            </li> -->
+          </ul>
+        </div>
+       <!--  <div class="sidenav-footer position-absolute w-100 bottom-0 ">
+          <div class="mx-3">
+            <a class="btn bg-gradient-primary mt-4 w-100" href="https://www.creative-tim.com/product/material-dashboard-pro?ref=sidebarfree" type="button">Upgrade to pro</a>
+          </div>
+        </div> -->
+      </aside>
+ 
+<!-- Modal -->
+
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
+    <!-- Navbar -->
+    {% include 'nav.html' %}
+  
+      
+  </div>
+  <br>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4 class="text-center" style="font-family:tahoma">Registration Page</h4>
+            <!-- Button to trigger the modal -->
+            <button id="viewuser" class="calendar-day p-2 px-4 btn btn bg-all text-white">
+              <i class="fa fa-check"></i> View Users
+            </button>
+
+            <!-- Modal Structure -->
+            <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-xl">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title" id="userModalLabel">Users List</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><font class="text-right">X</font></button>
+                      </div>
+                      <div class="modal-body">
+                          <table class="table table-bordered">
+                              <thead>
+                                  <tr>
+                                      <th class="w-1">S/N</th>
+                                      <th>First Name</th>
+                                      <th>Last Name</th>
+                                      <th>Username</th>
+                                      
+                                      <th>Group</th>
+                                      
+                                  </tr>
+                              </thead>
+                              <tbody id="userTableBody">
+                                  <!-- User rows will be dynamically inserted here -->
+                                  
+                                    {% for user in users %}
+                                        <tr>
+                                            <td>{{ forloop.counter}}</td>
+                                            <td>{{ user.first_name }}</td>
+                                            <td>{{ user.last_name }}</td>
+                                            <td>{{ user.username }}</td>
+                                            
+                                            <td>{{ user.groups__name|default:"N/A" }}</td>
+                                          
+                                        </tr>
+                                    {% endfor %}
+                                
+                              </tbody>
+                          </table>
+                      </div>
+                     
+                  </div>
+              </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+  <div class="row">
+    {% comment %} <div class="col-md-2 col-lg-2"></div> {% endcomment %}
+    <div class="col-md-8 col-lg-10 card p-3 w-90">
+      
+      {% if messages %}
+      <div class="alert alert-info w-90" role="alert">
+        {% for message in messages %}
+          {{ message }}
+        {% endfor %}
+      </div>
+    {% endif %}
+    
+    <form method="post" style="width:100%" class="w-100">
+      {% csrf_token %}
+      <div class="form-group">
+        {{ form.username.label_tag }}
+        {{ form.username }}
+        {% if form.username.errors %}
+          <div class="text-danger">{{ form.username.errors }}</div>
+        {% endif %}
+      </div>
+      <div class="form-group w-90">
+        {{ form.email.label_tag }}
+        {{ form.email }}
+        {% if form.email.errors %}
+          <div class="text-danger">{{ form.email.errors }}</div>
+        {% endif %}
+      </div>
+      <div class="form-group w-90">
+        {{ form.password.label_tag }}
+        {{ form.password }}
+        {% if form.password.errors %}
+          <div class="text-danger">{{ form.password.errors }}</div>
+        {% endif %}
+      </div>
+      <div class="form-group">
+        {{ form.first_name.label_tag }}
+        {{ form.first_name }}
+        {% if form.first_name.errors %}
+          <div class="text-danger">{{ form.first_name.errors }}</div>
+        {% endif %}
+      </div>
+      <div class="form-group">
+        {{ form.last_name.label_tag }}
+        {{ form.last_name }}
+        {% if form.last_name.errors %}
+          <div class="text-danger">{{ form.last_name.errors }}</div>
+        {% endif %}
+      </div>
+      <div class="form-group w-90">
+        {{ form.group.label_tag }}
+        {{ form.group }}
+        {% if form.group.errors %}
+          <div class="text-danger">{{ form.group.errors }}</div>
+        {% endif %}
+      </div>
+      <button type="submit" class="btn btn bg-all w-90 text-white">Save</button>
+    </form>
+    </div>
+  
+
+
+    <style>
+      .form-control {
+        height: 40px; /* Adjust the height */
+        font-size: 16px; /* Adjust the font size */
+        border-radius: 0.25rem; /* Rounded corners */
+        border: 1px solid #ced4da; /* Border color */
+         /* Maximum width */
+        box-sizing: border-box; /* Include padding and border in the element's total width and height */
+      }
+      input[type="text"]{
+        width:100%;
+      }
+  </style>
+  <script>
+    <!-- Include jQuery and Bootstrap JS if not already included -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+  <script>
+    $(document).ready(function() {
+        $('#viewuser').click(function() {
+            $.ajax({
+                url: '{% url "add_user" %}', // URL to fetch user data
+                method: 'GET',
+                success: function(response) {
+                    // Show the modal
+                    var userModal = new bootstrap.Modal(document.getElementById('userModal'));
+                    userModal.show();
+                },
+                error: function() {
+                    alert('Failed to fetch user data.');
+                }
+            });
+        });
+    });
+</script>
+
+
+  </script>
+  {% include "footlink.html" %}
+</main>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+     <!-- Bootstrap and jQuery -->
+     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+ 
+  <script src="{% static 'assets/js/material-dashboard.min.js' %}"></script>
+  <script src="{% static 'assets/js/script.js' %}"></script>
+  <script src="{% static 'assets/js/core/popper.min.js' %}"></script>
+  <script src="{% static 'assets/js/core/bootstrap.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/perfect-scrollbar.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/smooth-scrollbar.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/chartjs.min.js' %}"></script>
+  <script>
+
+  
+
+</body>
+</html>    
+        
+

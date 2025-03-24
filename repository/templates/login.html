@@ -1,0 +1,97 @@
+
+{% extends 'base_url.html' %}
+{% load static %}
+{% comment %} {% block title %}Login TechPhluent{% endblock %} {% endcomment %}
+{% block content  %}
+{% if user.is_authenticated %}
+  
+{% else %}
+  
+{% endif %}
+
+{% if user.is_authenticated %}
+  
+{% else %}
+  
+{% endif %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% comment %} <script>
+    $(document).ready(function() {
+        $('#myForm').on('submit', function(e) {
+            e.preventDefault(); // Prevent the form from submitting the traditional way
+            
+            $.ajax({
+                type: 'POST',
+                url: '{% url "Myhome" %}',  // URL to send the request to
+                data: $(this).serialize(),  // Serialize the form data
+                success: function(response) {
+                    if (response.status === 'success') {
+                        $('#message').html('<p>' + response.message + '</p>');
+                    } else {
+                        let errors = '';
+                        $.each(response.errors, function(key, value) {
+                            errors += '<p>' + key + ': ' + value + '</p>';
+                        });
+                        $('#message').html(errors);
+                    }
+                },
+                error: function() {
+                    $('#message').html('<p>An error occurred.</p>');
+                }
+            });
+        });
+    });
+    
+</script> {% endcomment %}
+<body style="background:#CCE6FF">
+    <br><br>
+    <div class="container mt-4">
+        <div class="row">
+            
+        </div>
+        <div class="row  d-flex justify-content-center align-items-center">
+            <div class="col-md-6">
+                
+                <div class="card">
+                    <div class="card-body run">
+                        <h4 class="card-title text-center text-bold">Computerized Document Management and Recommendation System</h4>
+                        <center><img src="{% static 'assets/img/logo.jpeg' %}"/></center>
+                        <form method="POST" id="myForm">
+                            {% csrf_token %}
+                            <div class="form-group mt-5">
+                                <label for="username" class="h6">Username</label>
+                                <input type="text" class="form-control" id="username" name="username" required placeholder="Username/Matric Number">
+                            </div>
+                            <div class="form-group mb-5">
+                                <label for="password" class="h6">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                                <input type="checkbox" id="myCheckbox"> I agree to the terms and conditions
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block" style="background:#006ACB" id="myButton" disabled>Login</button>
+                        </form>
+                        <div class="text-center mt-3">
+                            <a href="{%  url 'forgetpassword' %}" class="text-secondary">Forgot your <span class="text-primary">Password?</span></a>
+                        </div>
+                        {% if messages %}
+                            <div class="alert text-danger" role="alert" id="message">
+                                {% for message in messages %}
+                                    <p>{{ message }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<body>
+
+    <script>
+        $('#myCheckbox').change(function() {
+            $('#myButton').prop('disabled', !this.checked);
+        });
+    </script>
+
+
+{% endblock  %}

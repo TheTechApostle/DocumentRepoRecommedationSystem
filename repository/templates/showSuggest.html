@@ -1,0 +1,44 @@
+{% include 'nav_.html'%}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg p-4 border-0 rounded">
+                <h3 class="text-center text-primary mb-4">
+                    <i class="fa fa-lightbulb"></i> Computer Science Project Recommender
+                </h3>
+                <form method="POST" action="{% url 'showSuggest' %}">
+                    {% csrf_token %}
+                    <div class="input-group mb-3">
+                        <input type="text" name="query" class="form-control shadow-sm" 
+                            placeholder="Enter skills or interest..." required>
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-primary px-4">Find Projects</button>
+                        </div>
+                    </div>
+                </form>
+
+                {% if recommendations %}
+                    <div class="mt-4">
+                        <h5 class="text-center text-success">Recommended Projects</h5>
+                        <ul class="list-group mt-3">
+                            {% for project in recommendations %}
+                                <li class="list-group-item d-flex align-items-start bg-light border-0 shadow-sm mb-2 rounded">
+                                    <i class="fa fa-folder-open text-primary me-2"></i>
+                                    <div>
+                                        <strong class="text-dark">{{ project.title }}</strong> 
+                                        <p class="mb-0 text-muted">{{ project.description }}</p>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+    {% include 'footlink.html'%}
+</body>
+</html>
