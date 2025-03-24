@@ -1213,6 +1213,9 @@ def calendar(request):
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 def recommend_projects(user_input):
+    if not user_input.strip():  # Handle empty input
+        return []
+
     projects = ProjectIdea.objects.all()
     project_titles = [project.title for project in projects]
 
@@ -1220,21 +1223,21 @@ def recommend_projects(user_input):
         return []
 
     # Encode user input & projects
-    user_embedding = model.encode(user_input, convert_to_tensor=True).unsqueeze(0)  # Shape: (1, 384)
+    user_embedding = model.encode(user_input, convert_to_tensor=True)  # Shape: (1, 384)
     project_embeddings = model.encode(project_titles, convert_to_tensor=True)  # Shape: (N, 384)
 
-    # Compute cosine similarity (batch-wise)
-    scores = cosine_similarity(user_embedding, project_embeddings).squeeze(0)  # Ensure it's 1D
+    # Compute cosine similarity
+    scores = cosine_similarity(user_embedding.unsqueeze(0), project_embeddings).squeeze(0)  # Ensure it's 1D
 
     # Rank and return top 5 projects
-    top_indices = torch.argsort(scores, descending=True)[:5]  # Get top 5 indices
+    top_indices = torch.argsort(torch.tensor(scores), descending=True)[:5]  # Convert to tensor before sorting
     recommended = [projects[i] for i in top_indices.tolist()]  # Convert indices to project objects
 
     return recommended
 
 def showSuggest(request):
     if request.method == "POST":
-        user_input = request.POST.get("query")
+        user_input = request.POST.get("query", "").strip()
         recommendations = recommend_projects(user_input)
         return render(request, "showSuggest.html", {"recommendations": recommendations})
 
