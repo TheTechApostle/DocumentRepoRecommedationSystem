@@ -3,6 +3,7 @@
 {% include 'nav_.html'%}
 
 
+  
 <!-- Sale & Revenue Start -->
 <div class="container-fluid pt-4 px-4">
   <div class="row g-4">
@@ -12,7 +13,7 @@
               <div class="ms-3">
                   <p class="mb-2">Total Projects</p>
                   <h6 class="mb-0">
-                     4
+                     {{ allFiles}}
                   </h6>
               </div>
           </div>
@@ -23,7 +24,7 @@
               <div class="ms-3">
                   <p class="mb-2">Total Users</p>
                   <h6 class="mb-0">
-                    5
+                    {{ allUsers }}
                   </h6>
               </div>
           </div>
@@ -33,7 +34,7 @@
               <i class="fa fa-chart-area fa-3x text-primary"></i>
               <div class="ms-3">
                   <p class="mb-2">Total Project Folders</p>
-                  <h6 class="mb-0">0</h6>
+                  <h6 class="mb-0">{{ theFolder }}</h6>
               </div>
           </div>
       </div>
@@ -55,75 +56,134 @@
       <div class="d-flex align-items-center justify-content-between mb-4">
           <h6 class="mb-0">Recent Salse</h6>
           <a href="">Show All</a>
-      </div>
+      </div> 
+      <table class="table text-start align-middle table-bordered table-hover mb-0">
       <div class="table-responsive">
-          <table class="table text-start align-middle table-bordered table-hover mb-0">
-              <thead>
-                  <tr class="text-dark">
-                      <th scope="col"><input class="form-check-input" type="checkbox"></th>
-                      <th scope="col">Date</th>
-                      <th scope="col">Invoice</th>
-                      <th scope="col">Customer</th>
-                      <th scope="col">Amount</th>
-                      <th scope="col">Status</th>
-                      <th scope="col">Action</th>
-                  </tr>
-              </thead>
-              <tbody>
-                  <tr>
-                      <td><input class="form-check-input" type="checkbox"></td>
-                      <td>01 Jan 2045</td>
-                      <td>INV-0123</td>
-                      <td>Jhon Doe</td>
-                      <td>$123</td>
-                      <td>Paid</td>
-                      <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                  </tr>
-                  <tr>
-                      <td><input class="form-check-input" type="checkbox"></td>
-                      <td>01 Jan 2045</td>
-                      <td>INV-0123</td>
-                      <td>Jhon Doe</td>
-                      <td>$123</td>
-                      <td>Paid</td>
-                      <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                  </tr>
-                  <tr>
-                      <td><input class="form-check-input" type="checkbox"></td>
-                      <td>01 Jan 2045</td>
-                      <td>INV-0123</td>
-                      <td>Jhon Doe</td>
-                      <td>$123</td>
-                      <td>Paid</td>
-                      <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                  </tr>
-                  <tr>
-                      <td><input class="form-check-input" type="checkbox"></td>
-                      <td>01 Jan 2045</td>
-                      <td>INV-0123</td>
-                      <td>Jhon Doe</td>
-                      <td>$123</td>
-                      <td>Paid</td>
-                      <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                  </tr>
-                  <tr>
-                      <td><input class="form-check-input" type="checkbox"></td>
-                      <td>01 Jan 2045</td>
-                      <td>INV-0123</td>
-                      <td>Jhon Doe</td>
-                      <td>$123</td>
-                      <td>Paid</td>
-                      <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                  </tr>
-              </tbody>
-          </table>
+        <form method="POST" action="{% url 'delete_files' %}">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% csrf_token %}
+           
+                <thead>
+                    <tr class="text-dark">
+                        <th scope="col"><input class="form-check-input file-checkbox" id="select-all" type="checkbox"></th>
+                        <th scope="col">Date</th>
+                        <th scope="col">User</th>
+                        <th scope="col">Folder</th>
+                        <th scope="col">Path</th>
+                        <th scope="col">Filename</th>
+                        <th scope="col">Lecturer</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for x in allfiles %}
+                    <tr>
+                        <td><input class="form-check-input file-checkbox" type="checkbox" name="file_ids" value="{{ x.id }}"></td>
+                        <td>{{ x.date_created }}</td>
+                        <td>{{ x.nameUploaded }}</td>
+                        <td>{{ x.foldername }}</td>
+                        <td>{{ x.parentname }}</td>
+                        <td>
+                            <a class="btn btn-sm text-primary" href="{{ x.docs }}" download>
+                                <i class="fa fa-download" aria-hidden="true"></i>
+                                {{ x.filename }}
+                            </a>
+                        </td>
+                        <td>
+                            <!-- {{ x.nameUploaded.get_full_name }} -->
+                              {{ x.lecturer }}
+                        </td>
+                        <td>
+                            <a href="{% url 'showProject' x.id %}" class="btn btn-sm btn-primary">
+                              Detail
+                            </a>
+                          </td>
+                          
+                    </tr>
+                    {% endfor %}
+                </tbody>
+           
+            <!-- Django-style actions dropdown -->
+            <div class="d-flex align-items-center mt-2 mb-2">
+                <select name="action" id="action-select" class="form-select form-control form-select-sm" style="width: 200px; display: none;">
+                    <option value="">Select action</option>
+                    <option value="delete">Delete selected</option>
+                </select>
+                <button type="submit" id="apply-action" class="btn btn-danger btn-sm ms-2" style="display: none;">Apply</button>
+            </div>
+        </form>
+        
+        
       </div>
+    </table>
   </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="detailModalLabel">File Detail</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="modal-body-content">
+          <!-- AJAX will inject form here -->
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  
 
 
 <!-- Recent Sales End -->
 </div>
 {% include "footlink.html" %}
-</main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkboxes = document.querySelectorAll(".file-checkbox");
+        const selectAll = document.getElementById("select-all");
+        const actionSelect = document.getElementById("action-select");
+        const applyButton = document.getElementById("apply-action");
+    
+        function toggleActionElements() {
+            const anyChecked = [...checkboxes].some(checkbox => checkbox.checked);
+            actionSelect.style.display = anyChecked ? "block" : "none";
+            applyButton.style.display = anyChecked ? "block" : "none";
+        }
+    
+        // Toggle on individual checkbox change
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener("change", toggleActionElements);
+        });
+    
+        // Select All functionality
+        selectAll.addEventListener("change", function () {
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            toggleActionElements();
+        });
+    
+        // Ensure an action is selected before submitting the form
+        document.getElementById("file-form").addEventListener("submit", function (e) {
+            if (!actionSelect.value) {
+                e.preventDefault();
+                alert("Please select an action before applying.");
+            }
+        });
+    });
+    </script>
+    </main>
 </body>

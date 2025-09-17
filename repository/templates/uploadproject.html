@@ -1,7 +1,5 @@
 {% load static %}
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
 <style>
   /* Centralize the div using flexbox */
   
@@ -56,6 +54,7 @@
 {% include 'nav_.html'%}
     <div class="container mt-5">
       <div class="row">
+        {% if 'Admin' in user_groups or 'Lecturer' in user_groups %}
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <h3>Project</h3>
@@ -64,6 +63,7 @@
                 </button>
             </div>
         </div>
+        {% endif %}
     </div>
         <div class="row mt-4">
           
@@ -71,9 +71,11 @@
                
                 {% for x in directory %}
                 <div class="btn btn-primary mb-2 p-3 letter-spacing-2 w-100 text-left text-white text-capitalize font-weight-light">
-                    <i class="fa fa-check-circle rounded-circle h6 text-white" id="toggleButton{{ forloop.counter }}"></i> 
+                    <span style="float:left">
+                        <i class="fa fa-check-circle rounded-circle h6 text-white" id="toggleButton{{ forloop.counter }}"></i> 
                         <font family="calibri" style="font-size:14px">{{ x.foldername }}</font>
-                    <a href="../uploadDocProject/{{x.id}}"><i class="fa fa-greater-than  float-right rounded-circle p-2 text-white border-white border-1" id="toggleButton_1{{ forloop.counter }}"></i> </a>
+                    </span> 
+                    <a href="../uploadDocProject/{{x.id}}" style="float:right"><i class="fa fa-greater-than  float-right rounded-circle p-2 text-white border-white border-1" id="toggleButton_1{{ forloop.counter }}"></i> </a>
                 </div>
                 {% comment %} <div class="card w-15 float-right" id="thgs{{ forloop.counter }}">
             
@@ -100,11 +102,12 @@
                         
                     </div>
                 </div> {% endcomment %}
+                {% if 'Admin' in user_groups or 'Super Admin' in user_groups or 'Lecturer' in user_groups %}
                     <div class="card mb-3" id="thg{{ forloop.counter }}">
             
                         <div class="well" id="cardContent{{ forloop.counter }}">
-                            <div class="btn btn-white well text-left column p-1 d-flex ml-3 text-capitalize">
-                                <i class="fa fa-plus rounded-circle h5 mr-3" id="addfolder{{ forloop.counter }}"></i> Add folder
+                            <div class="btn btn-white well text-left column p-1 d-flex ml-3 text-capitalize" id="addfolder{{ forloop.counter }}">
+                                <i class="fa fa-plus rounded-circle h5 mr-3"></i> Add folder
                             </div>
                            
                             {% comment %} <div class="btn btn-white well text-left column p-1 d-flex ml-3 text-capitalize"">
@@ -117,6 +120,7 @@
                             
                         </div>
                     </div>
+                {% endif %}
                     <div class="modal fade" id="createFolderModal{{ forloop.counter }}" tabindex="-1" aria-labelledby="createFolderModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                           <div class="modal-content">

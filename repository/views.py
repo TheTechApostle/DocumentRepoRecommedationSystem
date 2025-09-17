@@ -3,10 +3,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from .forms import *
+from collections import defaultdict
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
+from django.utils.timezone import localtime, now
 import random, string
+from django.db.models import Q
 from django.conf import settings
 import os
 from django.http import HttpResponse, JsonResponse
@@ -24,6 +27,11 @@ from django.core.files.base import ContentFile
 import json, time
 import torch
 import re
+from docx import Document as DocxDocument
+from docx.shared import Pt, RGBColor
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
 from .utils import get_nav_context
 # Compute similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -107,8 +115,28 @@ def deleteUser(request, id):
 
 @login_required(login_url='Myhome')
 def dashboard(request):
+    user = request.user
+    first_name = user.first_name.strip()  # Get first name
+    last_name = user.last_name.strip()    # Get last name
+    full_name = f"{first_name} {last_name}"  # Combine first and last name
+
+    
+    all_files = uploadFile.objects.all()
+    user = request.user
+    user_groups = user.groups.values_list('name', flat=True)
+    full_name = f"{user.first_name} {user.last_name}" 
+
+    if user.groups.filter(name="Admin").exists() or user.groups.filter(name="SuperAdmin").exists():
+        # Admin and SuperAdmin see all files
+        files = all_files
+    elif user.groups.filter(name="Lecturer").exists():
+        full_name = f"{user.first_name} {user.last_name}".strip()
+        files = all_files.filter(lecturer=full_name)
+    elif user.groups.filter(name="Student").exists():
+        files = all_files.filter(nameUploaded=user) #Assuming `uploaded_by` is a ForeignKey to User
     user_groups = request.user.groups.values_list('name', flat=True)
-    nav_context = get_nav_context()
+    
+    nav_context = get_nav_context(request)
     now = timezone.now()
     meetings = Event_schedule.objects.filter(event_date__gte=now)
 
@@ -142,8 +170,9 @@ def dashboard(request):
     countMinute = range(00, 60)
     doc = FolderRepo.objects.all().distinct()
     attendee_count = []
-
-    context = {**nav_context,'user_groups':user_groups,'attendee_count': attendee_count, 'meetings_data': meetings_data,'user_groups':user_groups, 'titeHour':countHour, 'titeMin':countMinute,'fild':doc, 'docx':docx, 'fold':fold}
+     
+    
+    context = {**nav_context, 'firstname':first_name,'allfiles':files,'user_groups':user_groups,'attendee_count': attendee_count, 'meetings_data': meetings_data,'user_groups':user_groups, 'titeHour':countHour, 'titeMin':countMinute,'fild':doc, 'docx':docx, 'fold':fold}
     return render(request, 'index.html', context)
 
 
@@ -233,7 +262,7 @@ def generate_otp(length=6):
 def  forgetpassword(request):
     if request.method == "POST":
         mainemail = request.POST['email']
-        request.session['resend_code'] = mainemail;
+        request.session['resend_code'] = mainemail
         
         
 
@@ -428,7 +457,7 @@ def yes(request):
 #repository\static
 
 def uploadproject(request):
-    nav_context = get_nav_context()
+    nav_context = get_nav_context(request)
     dj = FolderRepo.objects.all().distinct()
     user_groups = request.user.groups.values_list('name', flat=True)
     if request.method == 'POST' and request.FILES.get('file'):
@@ -483,7 +512,7 @@ def updateProfile(request):
                 messages.error(request, "failed")
     return render(request, 'uploadproject.html')
 
-
+@login_required(login_url='Myhome')
 def projectfolder(request):
     if request.method=="POST":
         folderName = request.POST['foldername']
@@ -497,6 +526,7 @@ def projectfolder(request):
         #                                                    'parentName':ParentName,date_created':dateY})
         #
         if addfolder:
+            messages.success(request, 'Project Created Successfully')
             return redirect('uploadproject')                                                    
         else:
                 
@@ -550,7 +580,7 @@ def delete_folder(request, id):
 
   
 def uploadDocProject(request, id):
-    nav_context = get_nav_context()
+    nav_context = get_nav_context(request)
     dj = FolderRepo.objects.get(id=id)
     df = dj.id
     request.session['resend_id'] = df;
@@ -585,49 +615,11 @@ def uploadDocProject(request, id):
         return render(request, 'uploadDocProject.html')
     
 
-@login_required(login_url='Myhome')
-def upload_file_view(request):
-    if request.method == 'POST':
-        nameUploaded = request.user
-        filename = request.POST.get('filename')
-        foldername = request.POST.get('foldername')
-        parentname = request.POST.get('parentname')
-        dateY = datetime.now()
-        
-        file = request.FILES.get('image')
-        if file:
-            # Save the file to the media directory
-            file_name = default_storage.save(os.path.join(settings.STATICFILES_DIRS[0], f'medias/{parentname}/{foldername}', file.name), ContentFile(file.read()))
-            file_url = default_storage.url(file_name)
-            file_uri = file_url.replace("/repository", "").replace("%20", " ")
-            folder_url = file_uri.split(foldername)
-            if len(folder_url) > 1:
-                folder_urlx = folder_url[0] + f'{foldername}/'
-            uploadFile(nameUploaded = nameUploaded, filename=filename, foldername=foldername,parentname=parentname,docs=file_uri, folderurl=folder_urlx, date_created=dateY).save()
-            # Prepare the JSON response with the file URL
-            response_data = {
-                'success': True,
-                'file_url': file_uri,
-                'file_name': file.name,
-            }
-            id = request.session.get('resend_id')
-            # return JsonResponse(response_data)
-            # return JsonResponse({'success': {'filname':filename, 'foldername':foldername, 'parentname':parentname}})
-            
-
-        # Process the uploaded file and title
-        # For example, save the image and create a database entry
-
-        # Simulating success
-            
-    
-        id = request.session.get('resend_id')
-    return redirect(f'../geteachDio/{id}')
 
 
 def renamefolder(request):
+    nav_context = get_nav_context
     if request.method == "POST":
-        
         idfolder = request.POST.get('folderId')
         foldername = request.POST['foldername']
         oldfoldername = request.POST['oldfoldername']
@@ -647,7 +639,8 @@ def renamefolder(request):
             getfolder.foldername = foldername
             getfolder.save()
             id = request.session.get('resend_id')
-    return redirect(f'../geteachDio/{id}')
+    context = {**nav_context}
+    return redirect(f'../geteachDio/{id}', context)
 
 def deletefolder(request, id):
     folder = FolderNameProject.objects.get(id=id)
@@ -669,16 +662,17 @@ def deletefolder(request, id):
   
 
 def geteachDio(request, id):
-    nav_context = get_nav_context()
+    nav_context = get_nav_context(request)
     user_groups = request.user.groups.values_list('name', flat=True)
     dj = FolderNameProject.objects.get(id=id)
     df = dj.foldername
     dc = dj.id
-    request.session['resend_id'] = dc;
+    request.session['resend_id'] = dc
     djx = uploadFile.objects.filter(foldername=df)
     dfuri = uploadFile.objects.filter(foldername=df).last()
+    help = "help"
     
-    context = {**nav_context,'dj':dj,  'djx':djx, 'dfuri':dfuri,'df':df, 'dc':dc, 'user_groups':user_groups}
+    context = {**nav_context,'dj':dj, 'help':help, 'djx':djx, 'dfuri':dfuri,'df':df, 'dc':dc, 'user_groups':user_groups}
       
         
 
@@ -700,7 +694,7 @@ def geteachDio(request, id):
 
 
 def document(request):
-    nav_context = get_nav_context()
+    nav_context = get_nav_context(request)
     user_groups = request.user.groups.values_list('name', flat=True)
     allDoc = DocRepo.objects.all().distinct()
     context = {**nav_context, 'myDoc':allDoc, 'user_groups':user_groups}
@@ -731,7 +725,7 @@ def document(request):
 
 
 def message(request, id):
-    nav_context = get_nav_context()
+    nav_context = get_nav_context(request)
     user_groups = request.user.groups.values_list('name', flat=True)
     now = datetime.now()
     dateY = now.strftime("%Y-%m-%d %H:%M")
@@ -766,7 +760,7 @@ def message(request, id):
 
 
 def viewmessage(request, id):
-    nav_context = get_nav_context()
+    nav_context = get_nav_context(request)
     docfile = MessageBox.objects.get(id=id)
     docT = docfile.messageText
     messageCk = MessageBox.objects.filter(messageText=docT).order_by('messageTitle').distinct()
@@ -779,7 +773,7 @@ def uploadDocument(request):
 
 
 def draftmessages(request):
-    nav_context = get_nav_context()
+    nav_context = get_nav_context(request)
     user_groups = request.user.groups.values_list('name', flat=True)
     dateY = datetime.now()
     current_time = dateY
@@ -826,7 +820,7 @@ def deletemymessage(request, id):
     return redirect('draftmessages')
 
 def todos(request, id):
-    nav_context = get_nav_context()
+    nav_context = get_nav_context(request)
     user_groups = request.user.groups.values_list('name', flat=True)
     users = User.objects.all()
     docfile = DocRepo.objects.get(id=id)
@@ -889,7 +883,7 @@ def deleteCalender(request, id):
 
 
 def chat(request):
-    nav_context = get_nav_context()
+    nav_context = get_nav_context(request)
     user_groups = request.user.groups.values_list('name', flat=True)
     Alluser = User.objects.values()
     datej = datetime.now()
@@ -960,7 +954,7 @@ def mychat(request):
 
 @login_required(login_url='Myhome')
 def chatroom(request):
-    nav_context = get_nav_context()
+    nav_context = get_nav_context(request)
     user_groups = request.user.groups.values_list('name', flat=True)
     if request.method == 'POST':
         receiver_id = request.POST.get('receiver_id')
@@ -1025,7 +1019,7 @@ def get_chat_history(request):
     })
 @login_required(login_url='Myhome')
 def activities(request):
-    nav_context = get_nav_context()
+    nav_context = get_nav_context(request)
     user_groups = request.user.groups.values_list('name', flat=True)
     files = uploadFile.objects.order_by('-date_created')[:1]
     filesM = Meeting_Schedule.objects.order_by('-date_created')[:1]
@@ -1080,7 +1074,7 @@ def activities(request):
 
 @login_required(login_url='Myhome')
 def schedule_meeting(request):
-    nav_context = get_nav_context()
+    nav_context = get_nav_context(request)
     myuser = request.user
     user_groups = request.user.groups.values_list('name', flat=True)
     usernames = User.objects.values_list('username', flat=True)
@@ -1134,7 +1128,7 @@ def day_with_suffix(day):
     return day, suffix
 
 def calendar(request):
-    nav_context = get_nav_context()
+    nav_context = get_nav_context(request)
     filesM = Event_schedule.objects.all().distinct()
     files_with_datesM = []
     for fileM in filesM:
@@ -1235,47 +1229,109 @@ def recommend_projects(user_input):
 
     return recommended
 
+@login_required
 def showSuggest(request):
+    userGroup = request.user.groups.values_list('name', flat=True)
+    context = {'user_groups':userGroup}
     if request.method == "POST":
         user_input = request.POST.get("query", "").strip()
         recommendations = recommend_projects(user_input)
         return render(request, "showSuggest.html", {"recommendations": recommendations})
 
-    return render(request, "showSuggest.html")
+    return render(request, "showSuggest.html", context)
 
-REQUIRED_WORDS = ["chapter one", "abstract", "Chapter"]
+
+
+# Fixed Required Words
+FIXED_REQUIRED_WORDS = ["Chapter", "Introduction"]
 
 def clean_text(text):
     """Normalize text by removing extra spaces and newlines"""
     return re.sub(r"\s+", " ", text).strip().lower()
 
-def contains_required_words(text, required_words):
-    """Check if at least one of the required words exists in the text"""
+def contains_required_words(text, fixed_words, lecturer_names):
+    """Ensure all fixed words and at least one lecturer's name exist in the text"""
     text = text.lower()
-    return any(word.lower() in text for word in required_words)
+    return all(word.lower() in text for word in fixed_words) and any(name.lower() in text for name in lecturer_names)
 
 def calculate_similarity(new_text, existing_texts):
     """Compare new text with existing texts and return max similarity score"""
     if not existing_texts:
-        return 0  # No existing projects, so no similarity
-
+        return 0  
     texts = [new_text] + existing_texts
     vectorizer = TfidfVectorizer()
     tfidf_matrix = vectorizer.fit_transform(texts)
-
-    # ✅ Use sklearn's cosine_similarity correctly
     similarity_scores = cosine_similarity(tfidf_matrix[0], tfidf_matrix[1:]).flatten()
-
     return max(similarity_scores) if similarity_scores.size > 0 else 0
 
+def safe_int_conversion(value, default=12):
+    """Safely convert a value to an integer"""
+    try:
+        return int(float(value))  # Converts to float first, then int
+    except (ValueError, TypeError):
+        return default  # Return default font size if conversion fails
+
+def apply_format_to_pdf(file_path, formatting):
+    """Apply document formatting to a PDF file"""
+    output_file = file_path.replace(".pdf", "_formatted.pdf")
+
+    c = canvas.Canvas(output_file, pagesize=letter)
+    font_size = safe_int_conversion(formatting.fontSize, default=12)  # Ensure font size is valid
+    line_spacing = safe_int_conversion(formatting.lineSpacing, default=1.5) * 5  # Convert to int
+
+    c.setFont(formatting.fontFamily, font_size)
+    c.setFillColor(colors.HexColor(formatting.fontColor))
+
+    y_position = 750
+    with open(file_path, "r", encoding="utf-8") as f:
+        for line in f.readlines():
+            c.drawString(100, y_position, line.strip())
+            y_position -= line_spacing  
+            if y_position < 50:
+                c.showPage()
+                c.setFont(formatting.fontFamily, font_size)
+                y_position = 750
+
+    c.save()
+    os.replace(output_file, file_path)  # Replace original file
+
+def apply_format_to_docx(file_path, formatting):
+    """Apply document formatting to a DOCX file"""
+    
+    doc = DocxDocument(file_path)
+
+    font_size = safe_int_conversion(formatting.fontSize, default=12)
+    letter_spacing = safe_int_conversion(formatting.letterSpacing, default=0)
+
+    for para in doc.paragraphs:
+        for run in para.runs:
+            run.font.name = formatting.fontFamily
+            run.font.size = Pt(font_size)
+            # run.font.color.rgb = RGBColor.from_string(formatting.fontColor.replace("#", ""))
+            # Ensure letter spacing is handled safely
+            if hasattr(run.font, "letter_spacing"):
+                run.font.letter_spacing = Pt(letter_spacing)
+
+    output_file = file_path.replace(".docx", "_formatted.docx")
+    doc.save(output_file)
+    os.replace(output_file, file_path)  # Replace original file
+
+@login_required(login_url='Myhome')
 def upload_document(request):
+    user_groups = request.user.groups.values_list('name', flat=True)
+    firstname = request.user.first_name if request.user.is_authenticated else "Guest"
+
+    lecturer_group = Group.objects.filter(name="Lecturer").first()
+    lecturers = lecturer_group.user_set.all() if lecturer_group else []
+    lecturer_names = [lecturer.get_full_name().lower() for lecturer in lecturers]
+
     if request.method == "POST":
         form = DocumentForm(request.POST, request.FILES)
         if form.is_valid():
-            document = form.save()  
+            document = form.save()
             file_path = document.file.path  
 
-            # ✅ Extract text from document
+            #  Extract text from document
             extracted_text = ""
             if file_path.lower().endswith(".pdf"):
                 extracted_text = extract_text_from_pdf(file_path)
@@ -1287,40 +1343,306 @@ def upload_document(request):
                 messages.error(request, "Could not extract text from the document.")
                 return render(request, "upload_document.html", {"form": form})
 
-            # ✅ Clean and normalize text
             extracted_text = clean_text(extracted_text)
 
-            # ✅ Check if document contains required words
-            if not contains_required_words(extracted_text, REQUIRED_WORDS):
+            if not contains_required_words(extracted_text, FIXED_REQUIRED_WORDS, lecturer_names):
                 document.delete()
-                messages.error(request, "Document must contain at least one of these words: Chapter One, Abstract.")
+                messages.error(request, f"Document must contain all of these words: {', '.join(FIXED_REQUIRED_WORDS)} and at least one lecturer's name.")
                 return render(request, "upload_document.html", {"form": form})
 
-            # ✅ Fetch all existing project summaries
             existing_texts = [clean_text(doc.summary) for doc in Document.objects.all() if doc.summary]
-
-            # ✅ Calculate similarity with existing projects
             similarity_score = calculate_similarity(extracted_text, existing_texts)
-            print(f"✅ Similarity Score: {similarity_score * 100:.2f}%")  # Debugging
 
-            if similarity_score >= 0.50:  # If similarity is 50% or more
-                document.delete()  # Delete document since it exists
-                messages.error(request, f"A similar project already exists in the database. with percentage of {similarity_score * 100:.2f}%")
-                return render(request, "upload_document.html", {"form": form})
+            if similarity_score >= 0.35:  
+                document.delete()
+                DocumentError = f"A similar project already exists in the database with {similarity_score * 100:.2f}% similarity."
+                theSimilarity = f"{similarity_score * 100:.2f}%"
+                return render(request, "upload_document.html", {"form": form, 'user_groups': user_groups, 'firstname': firstname, 'DocsError': DocumentError, 'simScore': theSimilarity})
 
-            # ✅ Save summary and upload document
+            #  Save summary and upload document
             document.summary = summarize_text(extracted_text)
             document.save()
 
-            messages.success(request, "Document uploaded successfully!")
+            #  Apply formatting from formatDocument model
+            formatting = formatDocument.objects.first()
+            if formatting:
+                if file_path.lower().endswith(".pdf"):
+                    apply_format_to_pdf(file_path, formatting)
+                elif file_path.lower().endswith(".docx"):
+                    apply_format_to_docx(file_path, formatting)
+
+            messages.success(request, "Document uploaded and formatted successfully!")
             return redirect("document_list")
 
     else:
         form = DocumentForm()
-    return render(request, "upload_document.html", {"form": form})
+    
+    return render(request, "upload_document.html", {"form": form, "firstname": firstname})
 
+
+@login_required(login_url='Myhome')
+def upload_file_view(request):
+    user_groups = request.user.groups.values_list('name', flat=True)
+    firstname = request.user.first_name if request.user.is_authenticated else "Guest"
+    id = request.session.get('resend_id')
+
+    # Get lecturer names
+    lecturer_group = Group.objects.filter(name="Lecturer").first()
+    lecturers = lecturer_group.user_set.all() if lecturer_group else []
+    lecturer_names = [lecturer.get_full_name().lower() for lecturer in lecturers]
+
+    if request.method == 'POST':
+        try:
+            nameUploaded = request.user
+            filename = request.POST.get('filename')
+            foldername = request.POST.get('foldername')
+            parentname = request.POST.get('parentname')
+            lecturer = request.POST.get('lecturer')
+            status = "Not Approve"
+            dateY = timezone.now()
+
+            document = request.FILES.get('image')
+            if not document:
+                messages.error(request, "No document uploaded.")
+                return redirect(f'../geteachDio/{id}')
+
+            # Save uploaded file temporarily
+            temp_path = os.path.join(settings.MEDIA_ROOT, 'temp', document.name)
+            os.makedirs(os.path.dirname(temp_path), exist_ok=True)
+            with open(temp_path, 'wb+') as temp_file:
+                for chunk in document.chunks():
+                    temp_file.write(chunk)
+
+            #  Extract and clean text
+            extracted_text = ""
+            if temp_path.lower().endswith(".pdf"):
+                extracted_text = extract_text_from_pdf(temp_path)
+            elif temp_path.lower().endswith(".docx"):
+                extracted_text = extract_text_from_docx(temp_path)
+            else:
+                messages.error(request, "Unsupported file format.")
+                return redirect(f'../geteachDio/{id}')
+
+            if not extracted_text:
+                messages.error(request, "Could not extract text from the document.")
+                return redirect(f'../geteachDio/{id}')
+
+            extracted_text = clean_text(extracted_text)
+
+            if not contains_required_words(extracted_text, FIXED_REQUIRED_WORDS, lecturer_names):
+                messages.error(request, f"Document must contain all of these words: {', '.join(FIXED_REQUIRED_WORDS)} and at least one lecturer's name.")
+                return redirect(f'../geteachDio/{id}')
+
+            #  Check similarity
+            existing_texts = [clean_text(doc.summary) for doc in Document.objects.all() if doc.summary]
+            similarity_score = calculate_similarity(extracted_text, existing_texts)
+            if similarity_score >= 0.35:
+                theSimilarity = f"{similarity_score * 100:.2f}%"
+                request.session['SimScore'] = theSimilarity
+                messages.error(request, f"A similar project already exists with {theSimilarity} similarity.")
+                return redirect(f'../geteachDio/{id}')
+
+            #  Apply formatting before saving
+            formatting = formatDocument.objects.first()
+            if formatting:
+                if temp_path.lower().endswith(".pdf"):
+                    apply_format_to_pdf(temp_path, formatting)
+                elif temp_path.lower().endswith(".docx"):
+                    apply_format_to_docx(temp_path, formatting)
+
+            #  Save the formatted file
+            final_dir = os.path.join(settings.STATICFILES_DIRS[0], f'medias/{parentname}/{foldername}')
+            os.makedirs(final_dir, exist_ok=True)
+            final_path = os.path.join(final_dir, document.name)
+
+            with open(temp_path, 'rb') as formatted_file:
+                saved_name = default_storage.save(final_path, ContentFile(formatted_file.read()))
+
+            file_url = default_storage.url(saved_name)
+            file_uri = file_url.replace("/repository", "").replace("%20", " ")
+            folder_urlx = file_uri.rsplit(foldername, 1)[0] + f'{foldername}/'
+            status = "Not Approved"
+            #  Save uploadFile and Document records
+            uploadFile.objects.create(
+                nameUploaded=nameUploaded,
+                filename=filename,
+                foldername=foldername,
+                parentname=parentname,
+                docs=file_uri,
+                folderurl=folder_urlx,
+                lecturer=lecturer,
+                date_created=dateY,
+                status=status
+            )
+
+            Mysummary = summarize_text(extracted_text)
+            Document.objects.create(title=filename, file=file_uri, summary=Mysummary)
+
+            messages.success(request, "Document uploaded and formatted successfully!")
+            return redirect("document_list")
+
+        except Exception as e:
+            messages.error(request, f"An error occurred: {str(e)}")
+            return redirect(f'../geteachDio/{id}')
+
+    return redirect(f'../geteachDio/{id}')
+
+
+# def geteachDio(request, id):
+#     sim_score = request.session.pop('SimScore', None)
+#     context = {
+#         'simScore':sim_score
+#     }
+#     return render(request, 'geteachDio.html', context)
+
+
+@login_required(login_url='Myhome')
 def document_list(request):
+    user_groups = request.user.groups.values_list('name', flat=True)
+    if request.user.is_authenticated:
+        firstname = request.user.first_name
+    else:
+        firstname = "General"
+    
     documents = Document.objects.all()
-    return render(request, "document_list.html", {"documents": documents})
+    
+    
+    context = {"documents": documents, 'user_groups':user_groups, 'firstname':firstname}
+    return render(request, "document_list.html",context)
 
 
+def delete_files(request):
+    print("Weldone")
+    if request.method == "POST":
+        file_ids = request.POST.getlist("file_ids")
+        action = request.POST.get("action")  # Get selected action
+
+        if file_ids and action == "delete":
+            for file_id in file_ids:
+                try:
+                    file_obj = uploadFile.objects.get(id=file_id)
+                    file_name = file_obj.filename
+                    # Delete related documents by title
+                    Document.objects.filter(title=file_name).delete()
+                    # Delete the file itself
+                    file_obj.delete()
+                except uploadFile.DoesNotExist:
+                    continue  # Skip if file not found
+
+            messages.success(request, "Selected files deleted successfully.")
+        else:
+            messages.warning(request, "No action selected or no files checked.")
+    
+    return redirect("dashboard")
+
+
+def signup(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        email = request.POST["email"]
+        password = request.POST["password"]
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username already taken!")
+        elif User.objects.filter(email=email).exists():
+            messages.error(request, "Email already registered!")
+        else:
+            user = User.objects.create_user(username=username, email=email, password=password)
+            user.save()
+            student_group, created = Group.objects.get_or_create(name="Student")
+            user.groups.add(student_group)
+            messages.success(request, "Account created successfully! You can now login.")
+            return redirect("Myhome")  # Redirect to login page
+
+    return render(request, "signup.html")
+
+@login_required(login_url='Myhome')
+def documentFormating(request):
+    FontSize = range(8,40)
+    if request.method == "POST":
+        font_size = request.POST.get("font_size")
+        font_color = request.POST.get("font_color")
+        letter_spacing = request.POST.get("letter_spacing")
+        line_spacing = request.POST.get("line_spacing")
+        font_family = request.POST.get("font_family")
+        
+
+        # Save to the database
+        document, created = formatDocument.objects.update_or_create(
+            id=1,  # You can adjust this if you want user-specific settings
+            defaults={
+                "fontSize": font_size,
+                "fontColor": font_color,
+                "letterSpacing": letter_spacing,
+                "lineSpacing": line_spacing,
+                "fontFamily": font_family,
+                
+            },
+        )
+
+        if created:
+            messages.success(request, "Document formatting created successfully!")
+        else:
+            messages.success(request, "Document formatting updated successfully!")
+        context = {'fontSize':FontSize}
+        return render(request, 'documentFormating.html', context)
+
+    # Fetch the existing document settings if available
+    document = formatDocument.objects.first()
+
+    context = {'fontSize':FontSize, 'document':document}
+    return render(request, 'documentFormating.html', context)
+
+@login_required(login_url='Myhome')
+def showProject(request, id):
+    user_groups = request.user.groups.values_list('name', flat=True)
+    getNav = get_nav_context(request)
+    getId =  uploadFile.objects.get(id=id)
+    context = {'theFile':getId, **getNav, 'user_groups':user_groups,}
+    if request.method == "POST":
+        getID =  uploadFile.objects.get(id=id)
+        if getID.status == "Approved":
+
+            getID.status = "Not Approved"
+            getID.save()
+            return redirect(f'../showProject/{id}', context)
+        else:
+            getID.status = "Approved"
+            getID.save()
+            return redirect(f'../showProject/{id}', context)
+        
+    return render(request, 'editform.html', context)
+
+def sendMessage(request, username):
+    recipient = get_object_or_404(User, username=username)
+
+    if request.method == "POST":
+        message_text = request.POST.get("message")
+        if message_text:
+            Message.objects.create(
+                sender=request.user,
+                receiver=recipient,
+                content=message_text
+            )
+        return redirect('sendMessage', username=recipient.username)
+
+    # Fetch messages between sender and recipient
+    messages = Message.objects.filter(
+        Q(sender=request.user, receiver=recipient) |
+        Q(sender=recipient, receiver=request.user)
+    ).order_by('timestamp')
+
+    # Group messages by date
+    grouped_messages = defaultdict(list)
+    for message in messages:
+        date_key = localtime(message.timestamp).date()
+        grouped_messages[date_key].append(message)
+
+    context = {
+        'recipient': recipient,
+        'grouped_messages': grouped_messages.items(),  # date, [messages]
+        'today': now().date(),
+        'yesterday': (now() - timedelta(days=1)).date(),
+    }
+
+    return render(request, 'sendMessage.html', context)

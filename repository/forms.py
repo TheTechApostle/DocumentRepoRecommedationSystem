@@ -70,3 +70,9 @@ class DocumentForm(forms.ModelForm):
     class Meta:
         model = Document
         fields = ['title', 'file']
+
+
+class formatDocumentForm(forms.ModelForm):
+    class Meta:
+        model = formatDocument
+        fields  = ['fontSize','fontColor','fontFamily', 'letterSpacing']

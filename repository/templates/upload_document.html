@@ -1,31 +1,56 @@
 {% include 'nav_.html'%}
+<style>
+    input[type="text"] {
+        width: 95%;
+    }
+    
+</style>
+
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
+        <marquee>kindly note that any project with similarity up to 30% will not be accepted</marquee>
+        <div class="col-lg-9">
+           
             <div class="card shadow-lg p-4 border-0 rounded">
-                <h3 class="text-center text-primary mb-4">
-                    <i class="fa fa-file"></i> Upload Chapter One or Abstract of your Project
-                </h3>
-                <h2>Upload Document (PDF or DOCX)</h2>
+                <h5 class="text-center text-primary mb-4">
+                    <i class="fa fa-file"></i> 
+                    {% comment %} Upload Chapter One or Abstract of your Project {% endcomment %}
+                     Upload Chapter One, Abstract or Full Project Here
+                </h5>
+                <p class="font-tahoma h6">Upload Document (DOCX)</p>
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="form-group"> 
                         {{ form.as_p }}
                     </div>
-                    <button type="submit" class="btn btn-primary">Upload</button>
+                    <button type="submit" class="btn btn-primary w-100">Upload</button>
                 </form>
                 <br>
                 {% if messages %}
                     <div>
                         {% for message in messages %}
-                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
-                                {{ message }}
+                            <div class="alert alert-danger {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                                <strong>{{ message }}</strong>
                             </div>
                         {% endfor %}
                     </div>
                 {% endif %}
+                {% if DocsError %}
+                <text class="text-danger text-bold" style="font-size:16px"><strong>{{ DocsError }}</strong></text>
+                <div class="progress">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ simScore }};" aria-valuenow="{{ simScore }}" aria-valuemin="0" aria-valuemax="100">
+                      {{ simScore }}
+                    </div>
+                  </div>
+                  
+                  
 
-                <a href="{% url 'document_list' %}">View Saved Documents</a>
+                    
+                {% endif %}
+                <p class="mt-2">
+                    <a href="{% url 'document_list' %}">View Saved Documents</a> |
+                    <a href="{% url 'showSuggest' %}" style="color:purple">Check for Recommedations </a>
+                </p>
     
     {% include 'footlink.html'%}
 </body>

@@ -1,18 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Document List</title>
-</head>
-<body>
-    <h2>Saved Documents</h2>
-    <ul>
+{% include 'nav_.html' %}
+
+<section class="container my-5">
+  <div class="card shadow-sm border-0 rounded-4 p-4">
+    <h2 class="mb-4 text-primary text-center fw-bold">Saved Documents</h2>
+
+    {% if documents %}
+      <ul class="list-group mb-4">
         {% for document in documents %}
-            <li>
-                <strong>{{ document.title }}</strong> 
-                <br> <em>Summary:</em> {{ document.summary }}
-            </li>
+          <li class="list-group-item py-3">
+            <h5 class="mb-1 text-dark">{{ document.title }}</h5>
+            <p class="mb-0"><em class="text-muted">Summary:</em> {{ document.summary }}</p>
+          </li>
         {% endfor %}
-    </ul>
-    <a href="{% url 'upload_document' %}">Upload Another Document</a>
-</body>
-</html>
+      </ul>
+    {% else %}
+      <p class="text-muted text-center">No documents have been saved yet.</p>
+    {% endif %}
+
+    <div class="text-center mt-3">
+      <a href="{% url 'uploadproject' %}" class="btn btn-outline-primary rounded-pill">
+        <i class="fa fa-upload me-1"></i> Upload Another Document
+      </a>
+    </div>
+  </div>
+</section>
+
+{% include 'footlink.html' %}

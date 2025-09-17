@@ -4,5 +4,7 @@ pip install django transformers torch pandas scikit-learn numpy
 pip install python-docx PyMuPDF sumy
 pip install pdfplumber
 pip install scikit-learn
+pip install django-browser-reload
+pip install PyPDF2 reportlab
 
 

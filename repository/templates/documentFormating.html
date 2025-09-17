@@ -1,0 +1,184 @@
+{% load static %}
+{% include 'nav_.html' %}
+
+    <style>
+        .container {
+            max-width: 600px;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h2 {
+            color: #007BFF;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        select, textarea {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #previewBox {
+            border: 1px dashed #aaa;
+            padding: 20px;
+            margin-top: 15px;
+            min-height: 80px;
+            font-size: 16px;
+            color: black;
+        }
+        button {
+            background: #007BFF;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <br><br>
+<div class="container mt-4">
+    <h2>Standard Document Formatting</h2>
+
+    {% if messages %}
+        <div class="alert alert-success">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- Font Size -->
+        <div class="form-group">
+            <label>Font Size:</label>
+            <select name="font_size" id="fontSize">
+                {% for x in fontSize %}
+                    <option value="{{x}}px">{{x}}px</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Font Color -->
+        <div class="form-group">
+            <label>Font Color:</label>
+            <select name="font_color" id="fontColor">
+                <option value="black">Black</option>
+                {% comment %} <option value="red">Red</option>
+                <option value="blue">Blue</option>
+                <option value="green">Green</option>
+                <option value="pink">pink</option>
+                <option value="purple">Purple</option>
+                <option value="gray">gray</option> {% endcomment %}
+            </select>
+        </div>
+
+        <!-- Letter Spacing -->
+        <div class="form-group">
+            <label>Letter Spacing:</label>
+            <select name="letter_spacing" id="letterSpacing">
+                <option value="0px">Normal</option>
+                <option value="1px">1px</option>
+                <option value="2px">2px</option>
+                <option value="4px">4px</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="line_spacing">Line Spacing:</label>
+            <select name="line_spacing" class="form-control" onchange="changeLineSpacing(this.value)">
+                <option value="1">Single (1)</option>
+                <option value="1.5">1.5</option>
+                <option value="2">Double (2)</option>
+                <option value="2.5">2.5</option>
+                <option value="3">Triple (3)</option>
+            </select>
+        </div>
+        <!-- Font Family -->
+        
+            <!-- Font Family -->
+        <div class="form-group">
+            <label for="fontFamily">Choose a Font Family:</label>
+            <select id="fontFamily" onchange="changeFontFamily(this.value)" name="font_family">
+                <option value="Arial">Arial</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Helvetica">Helvetica</option>
+                <option value="Tahoma">Tahoma</option>
+                <option value="Trebuchet MS">Trebuchet MS</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Garamond">Garamond</option>
+                <option value="Palatino Linotype">Palatino Linotype</option>
+                <option value="Book Antiqua">Book Antiqua</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Lucida Console">Lucida Console</option>
+                <option value="Consolas">Consolas</option>
+                <option value="Monaco">Monaco</option>
+                <option value="Andale Mono">Andale Mono</option>
+                <option value="Comic Sans MS">Comic Sans MS</option>
+                <option value="Brush Script MT">Brush Script MT</option>
+                <option value="Impact">Impact</option>
+                <option value="Papyrus">Papyrus</option>
+                <option value="Bookman Old Style">Bookman Old Style</option>
+                <option value="Calibri">Calibri</option>
+                <option value="Cambria">Cambria</option>
+                <option value="Century Gothic">Century Gothic</option>
+                <option value="Franklin Gothic Medium">Franklin Gothic Medium</option>
+                <option value="Futura">Futura</option>
+                <option value="Perpetua">Perpetua</option>
+                <option value="Rockwell">Rockwell</option>
+                <option value="Segoe UI">Segoe UI</option>
+                <option value="Arial Black">Arial Black</option>
+            </select>
+        </div>
+
+     
+
+        <!-- Live Preview -->
+        <div id="previewBox">
+            Preview text will appear here...
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit">Save Formatting</button>
+    </form>
+</div>
+
+<script>
+    // Live preview updates
+    document.querySelectorAll("select").forEach(select => {
+        select.addEventListener("change", updatePreview);
+    });
+
+    function updatePreview() {
+        const previewBox = document.getElementById("previewBox");
+        previewBox.style.fontSize = document.getElementById("fontSize").value;
+        previewBox.style.color = document.getElementById("fontColor").value;
+        previewBox.style.letterSpacing = document.getElementById("letterSpacing").value;
+        previewBox.style.fontFamily = document.getElementById("fontFamily").value;
+    }
+</script>
+
+{% include "footlink.html" %}
+</body>
+</html>

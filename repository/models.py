@@ -66,18 +66,25 @@ class FolderNameProject(models.Model):
     
 
 class uploadFile(models.Model):
+    status = (
+        ('Approved', 'Approved'),
+        ('Not Approved', 'Not Approved')
+    )
     filename = models.CharField('File Name', max_length=100)
     nameUploaded = models.ForeignKey(User, on_delete=models.CASCADE)
     foldername = models.CharField('Folder Name', max_length=100)
     parentname = models.CharField('Parent Name', max_length=100)
     folderurl = models.CharField('folder Url', max_length=100)
+    #lecturer = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'groups__name': 'Lecturer'})
+    lecturer =  models.CharField("lecturer", max_length=100)
     date_created  = models.DateTimeField("date_created", auto_now_add=False)
     docs = models.ImageField(upload_to='repository/static/profile/')
+    status = models.CharField(choices=status, max_length=100)
 
 
 
     def __str__(self):
-        return self.foldername
+        return self.filename
 
 class MessageBox(models.Model):
     documentName = models.CharField('Document Name', max_length=100)
@@ -120,7 +127,7 @@ class Message(models.Model):
     receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    file = models.FileField(upload_to='messages/files/', null=True, blank=True)
+    # file = models.FileField(upload_to='messages/files/', null=True, blank=True)
 
 
     def __str__(self):
@@ -184,4 +191,15 @@ class Document(models.Model):
         return self.title
 
 
-        
+    
+class formatDocument(models.Model):
+    fontSize = models.CharField("Font Size", max_length=50)
+    fontColor = models.CharField("Font Color", max_length=50)
+    fontFamily = models.CharField("Font Family", max_length=50)
+    letterSpacing = models.CharField("Letter Spacing", max_length=50)
+    lineSpacing = models.CharField("Line Spacing", max_length=50)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return self.fontFamily

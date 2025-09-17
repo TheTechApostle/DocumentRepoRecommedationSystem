@@ -71,6 +71,8 @@
                         </form>
                         <div class="text-center mt-3">
                             <a href="{%  url 'forgetpassword' %}" class="text-secondary">Forgot your <span class="text-primary">Password?</span></a>
+                            | 
+                            <a href="{% url 'signup' %}" class="text-secondary">No account ?<span class="text-primary"> Signup Here</span></a>                            
                         </div>
                         {% if messages %}
                             <div class="alert text-danger" role="alert" id="message">

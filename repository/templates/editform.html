@@ -1,0 +1,92 @@
+{% include 'nav_.html' %}
+
+<section class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-4">
+          <h3 class="mb-4 text-center text-primary fw-bold">Project View Session</h3>
+          <form id="editForm" method="POST">
+            {% csrf_token %}
+            <ul class="list-group list-group-flush mb-4">
+              <li class="list-group-item px-3 py-3">
+                {% if theFile.status == "Not Approved" %}
+                  <span class="badge bg-danger text-white px-3 py-2">{{ theFile.status }}</span>
+                {% elif theFile.status == "Approved" %}
+                  <span class="badge bg-success text-white px-3 py-2">{{ theFile.status }}</span>
+                {% else %}
+                  <span class="badge bg-secondary text-white px-3 py-2">{{ theFile.status }}</span>
+                {% endif %}
+
+              </li>
+              <li class="list-group-item px-3 py-3 d-flex align-items-center">
+                <i class="fa fa-folder text-primary me-2 fs-5"></i>
+                  <div>
+                    <span class="fw-semibold text-secondary">Project Folder:</span><br>
+                    <span class="text-dark fw-bold">{{ theFile.parentname }}</span>
+                  </div>
+              </li>
+              <li class="list-group-item px-3 py-3 d-flex align-items-center">
+                <i class="fa fa-file-code text-primary me-2 fs-5"></i>
+                  <div>
+                    <span class="fw-semibold text-secondary">Folder Name:</span><br>
+                    <span class="text-dark fw-bold">{{ theFile.foldername }}</span>
+                  </div>
+              </li>
+              <li class="list-group-item px-3 py-3 d-flex align-items-center">
+                <i class="fa fa-folder-open text-primary me-2 fs-5"></i>
+                  <div>
+                    <span class="fw-semibold text-secondary">Project Name:</span><br>
+                    <span class="text-dark fw-bold">{{ theFile.filename }}</span>
+                  </div>
+              </li>
+              <li class="list-group-item px-3 py-3 d-flex align-items-center">
+                  <i class="fa fa-chalkboard-teacher text-primary me-2 fs-5"></i>
+                  <div>
+                    <span class="fw-semibold text-secondary">Lecturer:</span><br>
+                    <span class="text-dark fw-bold">{{ theFile.lecturer }}</span>
+                  </div>
+              </li>
+              <li class="list-group-item px-3 py-3 d-flex align-items-start">
+                <i class="fa fa-user text-primary me-3 fs-4 mt-1"></i>
+                <div>
+                  <span class="fw-semibold text-secondary">Name of Uploader:</span><br>
+                  <span class="fw-bold text-dark">{{ theFile.nameUploaded.first_name }} {{ theFile.nameUploaded.last_name }}</span><br>
+                  
+                  {% if 'Admin' in user_groups or 'Super Admin' in user_groups or 'Lecturer' in user_groups %}
+                    <a href="{% url 'sendMessage' theFile.nameUploaded.username  %}" class="text-decoration-none me-1 float-right text-primary small">
+                      <i class="fa fa-paper-plane"></i>Send a Message
+                    </a>
+                  {% endif %}
+                </div>
+              </li>          
+              <li class="list-group-item px-3 py-3 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                  <i class="fa fa-file-alt text-secondary me-2 fs-5"></i>
+                  <span class="fw-semibold text-secondary">File:</span>
+                </div>
+                <a class="btn btn-outline-primary btn-sm" href="{{ theFile.docs }}" download>
+                  <i class="fa fa-download me-1"></i>Download {{ theFile.filename }}
+                </a>
+              </li>              
+            </ul>
+            {% if 'Admin' in user_groups or 'Super Admin' in user_groups or 'Lecturer' in user_groups %}
+            <div class="text-end">
+              {% if theFile.status == "Not Approved" %}
+                  <button type="submit" class="btn btn-success px-4 rounded-pill">Click to Approve</button>
+              {% elif theFile.status == "Approved" %}
+                  <button type="submit" class="btn btn-danger px-4 rounded-pill">Click Not Approved</button>
+              {% else %}
+              <button type="submit" class="btn btn-success px-4 rounded-pill">ok >></button>
+              {% endif %}
+             
+            </div>
+            {% endif %} 
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% include 'footlink.html' %}

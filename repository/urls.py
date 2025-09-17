@@ -27,8 +27,7 @@ urlpatterns = [
     path("repo/draftmessages/", views.draftmessages, name="draftmessages"),
     path("repo/chat/", views.chat, name="chat"),
     path("repo/todos/<int:id>", views.todos, name="todos"),
-    path("repo/deleteUser/<int:id>", views.deleteUser, name="deleteUser"),
-    
+    path("repo/deleteUser/<int:id>", views.deleteUser, name="deleteUser"),    
     path("repo/mychat/", views.mychat, name="mychat"),
     path("repo/chatroom/", views.chatroom, name="chatroom"),
     path("repo/schedule_meeting/", views.schedule_meeting, name="schedule_meeting"),
@@ -43,4 +42,9 @@ urlpatterns = [
     path("repo/showSuggest/", views.showSuggest, name="showSuggest"),
     path("repo/upload/", views.upload_document, name="upload_document"),
     path("repo/documents/", views.document_list, name="document_list"),
+    path("repo/dashboard/delete", views.delete_files, name="delete_files"),
+    path("repo/signup/", views.signup, name="signup"),
+    path('repo/sendMessage/<str:username>', views.sendMessage, name='sendMessage'),
+    path('repo/showProject/<int:id>', views.showProject, name='showProject'),
+    path("repo/documentFormating/", views.documentFormating, name="documentFormating"),
 ]

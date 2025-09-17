@@ -4,7 +4,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Font Awesome CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-{% include 'header.html' %}
+
 <style>
     /* Centralize the div using flexbox */
     .modal-dialogs {
@@ -13,6 +13,7 @@
         justify-content: center;
         min-height: calc(100vh - 100px); /* Subtracting 100px for spacing */
         margin: 50px auto; /* 50px space from top and bottom */
+        width:80%;
     }
     .file-upload-wrapper {
         position: relative;
@@ -24,7 +25,7 @@
         left: 0;
         top: 0;
         height: 100%;
-        width: 100%;
+        width: 90%;
         opacity: 0;
         cursor: pointer;
     }
@@ -79,61 +80,62 @@
     
 </style>
 
-<body class="g-sidenav-show  bg-gray-200">
-  {% include "asidehead.html" %}
- 
+<body>
 <!-- Modal -->
 
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
     <!-- Navbar -->
-    {% include 'nav.html' %}
+    {% include 'nav_.html' %}
     
     <div class="container mt-5">
         <div class="row">
             <div class='col-lg-12 col-md-12 col-sm-12'>
                 <span class="text-right h5 my-3">Folder</span>
+                <a href="{% url 'showSuggest' %}" class="btn btn-outline-success px-4 py-1 rounded-pill m-2 float-right">Find Recommendation</a>
                 
                 
                 
-                
-                    <div class="btn btn bg-all mb-2 p-3 letter-spacing-2 w-100 text-left text-white text-capitalize font-weight-light">
+                    <div class="btn btn bg-primary mb-2 p-3 letter-spacing-2 w-100 text-left text-white text-capitalize font-weight-light">
                         {% comment %} <a download="my_achieve.zip" href="{{ dfuri.folderurl }}.zip"> {% endcomment %}
                             <i class="fa fa-folder rounded-circle h6 text-white"></i> 
                             <font family="calibri" style="font-size:14px">{{ df }}</font>
                         {% comment %} </a> {% endcomment %}
                     
                     
-                        <i class="fa fa-ellipsis-h  float-right rounded-circle p-2 text-white border-white border-1" id="toggleButton"></i>
+                        <span class="fa fa-ellipsis-h  float-right rounded-circle p-2 text-white border-white border-1" id="toggleButton"></span>
                     </div>
                 
                
                 <div class="card w-15 float-right" id="thgs">
-            
+                   
                     <div class="well" id="cardContent">
+                        
+                        <div class="btn btn-white well text-left column p-0 d-flex ml-3 text-capitalize text-right m" data-toggle="modal" data-target="#uploadfileModal">
+                            <i class="fa fa-upload text-right h5 mr-3 rounded-circle" id="uploadfile"></i> 
+                            <span class="text-right  mt-1">Upload</span>
+                        </div>
+                        <hr>
+                        {% if 'Admin' in user_groups or 'Lecturer' in  user_groups or 'Super Admin' in user_groups %}
                         <div class="btn btn-white well text-left column p-0 d-flex ml-3 text-capitalize text-right m">
                             <i class="fa fa-edit rounded-circle h4 mr-3" id="renamefile" data-toggle="modal" data-target="#renamefileModal"></i> 
                             <span class="text-right  mt-1">Rename</span>
                         </div>
+                        
                         <hr>
-                        <div class="btn btn-white well text-left column p-0 d-flex ml-3 text-capitalize text-right m">
-                            <i class="fa fa-upload text-right h5 mr-3 rounded-circle" id="uploadfile" data-toggle="modal" data-target="#uploadfileModal"></i> 
-                            <span class="text-right  mt-1">Upload</span>
-                        </div>
-                        <hr>
-                       
+{% comment %}                       
                         <a download href="{{dfuri}}/">
                             <div class="btn btn-white well text-left column p-0 d-flex ml-3 text-capitalize text-right m">
                             <i class="fa fa-download rounded-circle h5 mr-3"></i> 
                             <span class="text-right  mt-1">Download</span>
                         </a>
                         
-                        </div>
-                        <hr>
+                        </div> {% endcomment %}
+                        
                         <div class="btn btn-white well text-left column p-0 d-flex ml-3 text-capitalize text-right m">
                             <a href="../deletefolder/{{dc}}" class="m"><i class="fa fa-trash rounded-circle h5 mr-3"></i> 
                             <span class="text-right  mt-1">Delete</span></a>
                         </div>
-                        
+                        {% endif %}
                     </div>
                 </div> 
                 {% for x in djx %}
@@ -144,11 +146,17 @@
                 
                 <div class="check w-100">
                     <div class="well" id="">
-                            <div class="btn btn-white well text-left column p-0 d-flex ml-3 text-capitalize text-right" style="background:#D1E9FF">
-                                <a download href="{{x.docs}}">
-                                    <i class="fa fa-file-archive-o h6 mx-3"></i>{{ x.filename }}
-                                </a>
-                            </div>
+                            <ul class="list-group well text-left column p-0 d-flex ml-3 text-capitalize text-left" style="background:#D1E9FF">
+                                <li class="list-group-item">
+                                    <a download href="{{x.docs}}">
+                                        <i class="fa fa-file-archive h6 mx-3"></i>{{ x.filename }}
+                                    </a>
+                                    <span  style="float:right">
+                                        <i class="fa fa-clock text-right"></i>{{ x.date_created }}
+                                    </span>
+                                </li>
+                                
+                            </ul>
                     </div>
                 </div>
               {% endfor %}
@@ -164,7 +172,7 @@
                                 <span aria-hidden="true">&times;</span>
                               </button>
                             </div>
-                            <div class="modal-body">
+                            <div class="modal-body modal-lg">
                                 <form id="uploadForm" method="POST" enctype="multipart/form-data"action="{% url 'renamefolder' %}">
                                     {% csrf_token %}
                               <!-- Dropbox Area -->
@@ -193,10 +201,10 @@
                     <!-- end rename-->
                     <!-- Modal -->
                     <div class="modal fade" id="uploadfileModal" tabindex="-1" role="dialog" aria-labelledby="uploadfileModalLabel" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
+                        <div class="modal-dialog modal-md" role="document" style="width:70%">
                           <div class="modal-content">
                             <div class="modal-header">
-                              <h5 class="modal-title" id="uploadfileModalLabel">Upload Your Image </h5>
+                              <h5 class="modal-title" id="uploadfileModalLabel">Upload Your Project Document </h5>
                               <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="close">
                                 <span aria-hidden="true">&times;</span>
                               </button>
@@ -205,11 +213,11 @@
                                 <form id="uploadForm" method="POST" enctype="multipart/form-data"action="{% url 'upload_file_view' %}">
                                     {% csrf_token %}
                               <!-- Dropbox Area -->
-                                    <div id="dropbox" class="dropbox w-90" data-counter="">
+                                    <div id="dropbox" class="dropbox" data-counter="" style="width:90%">
                                         <i class="fas fa-cloud-upload-alt h6"></i>
-                                        <span class="text-blue">Click to upload </span><span style="color:black">or drag and drop your image here JPG (max 800x400px)</span>
+                                        {% comment %} <span class="text-blue">Click to upload </span><span style="color:black">or drag and drop your image here JPG (max 800x400px)</span> {% endcomment %}
                                         
-                                        <input type="file" id="fileInput" name="image" accept="image/*">
+                                        <input type="file" id="fileInput" name="image" accept=".docx">
                                     </div>
                                     <div class="form-group">
                                         <label for="title">File Name:</label>
@@ -223,14 +231,26 @@
                                         <label for="title">Project:</label>
                                         <input type="text" class="form-control" id="title" name="parentname" value="{{dj.parentname}}" required>
                                     </div>
-                            
+                                    <div class="form-group">
+                                        <label>Project Supervisor</label>
+                                        <select name="lecturer" id="supervior" class="form-control" style="width:90%">
+                                            {% if lecturers %}
+                                                {% for lect in lecturers %}
+                                                <option>{{ lect.first_name }} {{ lect.last_name}}</option>
+                                                {% endfor %}
+                                            {% else %}
+                                            <option>No Lecturer</option>
+                                            {% endif %}
+                                            {{ help }}
+                                        </select>
+                                    </div>
                                     <!-- Filename and Error Message Display Area -->
                                     <div id="filename" class="filename"></div>
                                     <div id="errorMsg" class="errorMsg"></div>
                                     </div>
                                     <div class="modal-footer">
                                     
-                                    <button id="submitBtn" class="submitBtn btn btn bg-all text-white w-40" type="submit">Save</button>
+                                    <button id="submitBtn" class="submitBtn btn btn bg-primary w-100 text-white" type="submit">Save</button>
                                     </div>
                                 </form>
                             </div>
@@ -240,6 +260,28 @@
             </div>
         </div>
     </div>
+    {% if messages %}
+    <div>
+        {% for message in messages %}
+            <div class="alert alert-danger {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% if DocsError %}
+<text class="text-danger text-bold" style="font-size:16px"><strong>{{ DocsError }}</strong></text>
+<div class="progress">
+    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ simScore }};" aria-valuenow="{{ simScore }}" aria-valuemin="0" aria-valuemax="100">
+      {{ simScore }}
+    </div>
+  </div>
+  
+  
+
+    
+{% endif %}
+
     {% comment %} <div class="modal fade" id="autoPopupModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialogs" role="document">
           <div class="modal-content modal-contents">
